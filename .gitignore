@@ -1,0 +1,14 @@
+node_modules/
+.tmp/
+.claude/
+package.json
+package-lock.json
+*.md
+*.tsx
+*.js
+portfolio/
+gofood_checkout_case_study.md
+www.benshih.design_.png
+Rachel's website.png
+Rizha Teuku Portfolio - Silvi App Case Study - Advanced-compressed.pdf
+Order activity monitoring.png

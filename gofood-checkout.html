@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoFood Checkout Redesign — Rizha Teuku</title>
+  <meta name="description" content="How I rebuilt GoFood's checkout: +2.9% sessions-to-booking for new users, and a case for segment-aware design.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    :root {
+      --green: #00AA13;
+      --green-dim: rgba(0,170,19,0.08);
+      --red-dim: rgba(220,38,38,0.08);
+      --red: #dc2626;
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background-color: #e9e9e9;
+      background-image:
+        radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, #ffffff 0%, #e9e9e9 clamp(500px, 40vw, 1100px));
+      background-size: 24px 24px, 100% 100%;
+      background-repeat: repeat, no-repeat;
+      color: #1c1d1d;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: clamp(20px, 3.7vw, 64px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      display: flex;
+      align-items: center;
+      gap: clamp(20px, 2.78vw, 48px);
+      padding: clamp(10px, 1.39vw, 24px) clamp(16px, 1.85vw, 32px);
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 60px;
+      font-size: clamp(13px, 1.2vw, 20px);
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      z-index: 100;
+      opacity: 0;
+      animation: navIn 0.7s var(--ease) 0.1s forwards;
+    }
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(0,0,0,0.5);
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #000; }
+    .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .nav-logo { color: #000; font-weight: 500; }
+    .nav-tag {
+      color: rgba(0,0,0,0.3);
+      font-size: clamp(11px, 1vw, 16px);
+    }
+
+    /* ── HERO ─────────────────────────────────────────────── */
+    .hero {
+      padding: clamp(140px, 16vw, 260px) clamp(24px, 8vw, 140px) clamp(60px, 6vw, 100px);
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(11px, 0.97vw, 16px);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: clamp(20px, 2.3vw, 40px);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 0.2s forwards;
+    }
+    .hero-tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5.2vw, 90px);
+      font-weight: 400;
+      line-height: 1.07;
+      letter-spacing: -0.04em;
+      max-width: 16ch;
+      margin-bottom: clamp(28px, 3.5vw, 60px);
+    }
+    .line-mask { display: block; overflow: hidden; padding-bottom: 0.06em; }
+    .line-inner { display: block; }
+    .line-inner.black {
+      color: #000;
+      transform: translateY(110%);
+      animation: lineUp 1s var(--ease) 0.35s forwards;
+    }
+    .line-inner.gray {
+      color: #8f8f8f;
+      transform: translateY(110%);
+      animation: lineUp 1s var(--ease) 0.52s forwards;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: clamp(24px, 3.5vw, 60px);
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s var(--ease) 0.85s forwards;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 4px; }
+    .meta-label {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+    }
+    .meta-value {
+      font-size: clamp(14px, 1.2vw, 20px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #000;
+    }
+
+    /* ── COVER IMAGE ─────────────────────────────────────── */
+    .cover {
+      margin: 0 clamp(24px, 4vw, 72px);
+      border-radius: clamp(16px, 3.5vw, 60px);
+      overflow: hidden;
+      aspect-ratio: 1632/938;
+      background: #f0f0f0;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1s var(--ease), transform 1s var(--ease);
+    }
+    .cover.revealed { opacity: 1; transform: translateY(0); }
+    .cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #1c1d1d 0%, #3a3b3b 50%, #1c1d1d 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cover-placeholder-text {
+      font-size: clamp(14px, 2vw, 32px);
+      color: rgba(255,255,255,0.2);
+      letter-spacing: -0.04em;
+      font-weight: 500;
+    }
+
+    /* ── SECTIONS ─────────────────────────────────────────── */
+    .cs-section {
+      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .cs-section-label {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      margin-bottom: clamp(16px, 1.85vw, 32px);
+    }
+    .cs-h2 {
+      font-size: clamp(28px, 3.7vw, 64px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: clamp(16px, 2vw, 36px);
+      max-width: 22ch;
+    }
+    .cs-h2 strong { font-weight: 600; color: #000; }
+    .cs-body {
+      font-size: clamp(15px, 1.4vw, 24px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+      max-width: 60ch;
+    }
+    .cs-body + .cs-body { margin-top: 1em; }
+
+    /* ── DIVIDER ──────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: rgba(0,0,0,0.08);
+      margin: 0 clamp(24px, 8vw, 140px);
+    }
+
+    /* ── TL;DR STATS ─────────────────────────────────────── */
+    .stats-band {
+      background: #fff;
+      border-radius: clamp(16px, 3.5vw, 60px);
+      margin: clamp(40px, 5vw, 80px) clamp(24px, 4vw, 72px);
+      padding: clamp(40px, 5vw, 80px) clamp(32px, 5vw, 80px);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(24px, 3vw, 48px);
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 0.8vw, 14px);
+      padding-left: clamp(16px, 2vw, 32px);
+      border-left: 2px solid rgba(0,0,0,0.08);
+    }
+    .stat-item:first-child { border-left: none; padding-left: 0; }
+    .stat-number {
+      font-size: clamp(36px, 5.2vw, 90px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: #000;
+    }
+    .stat-number.green { color: var(--green); }
+    .stat-number.muted { color: #c0c0c0; }
+    .stat-desc {
+      font-size: clamp(12px, 1.1vw, 18px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+    }
+
+    /* ── FUNNEL ───────────────────────────────────────────── */
+    .funnel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 5vw, 80px);
+      align-items: center;
+    }
+    .funnel {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(12px, 1.5vw, 24px);
+    }
+    .funnel-step { display: flex; flex-direction: column; gap: 8px; }
+    .funnel-step-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .funnel-step-label {
+      font-size: clamp(12px, 1.1vw, 18px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+    }
+    .funnel-step-pct {
+      font-size: clamp(18px, 2.2vw, 38px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+    }
+    .funnel-step-pct.problem { color: var(--red); }
+    .funnel-bar-track {
+      height: clamp(10px, 1.2vw, 20px);
+      background: rgba(0,0,0,0.06);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .funnel-bar-fill {
+      height: 100%;
+      border-radius: 100px;
+      background: #1c1d1d;
+      width: 0;
+      transition: width 1.2s var(--ease);
+    }
+    .funnel-bar-fill.problem { background: var(--red); }
+    .funnel-bar-fill.revealed-bar { /* set by JS */ }
+
+    .funnel-insight {
+      margin-top: clamp(20px, 2.5vw, 40px);
+      padding: clamp(16px, 2vw, 32px);
+      background: var(--red-dim);
+      border-radius: clamp(12px, 1.5vw, 24px);
+      border-left: 3px solid var(--red);
+    }
+    .funnel-insight p {
+      font-size: clamp(14px, 1.3vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: var(--red);
+      line-height: 1.4;
+    }
+
+    /* ── DROP-OFF BARS ───────────────────────────────────── */
+    .dropoff-chart {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 2vw, 32px);
+    }
+    .dropoff-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+    }
+    .dropoff-bar-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .dropoff-label {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: #454545;
+      letter-spacing: -0.02em;
+    }
+    .dropoff-track {
+      height: clamp(8px, 1vw, 16px);
+      background: rgba(0,0,0,0.06);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .dropoff-fill {
+      height: 100%;
+      border-radius: 100px;
+      width: 0;
+      transition: width 1.2s var(--ease);
+    }
+    .dropoff-fill.primary { background: #1c1d1d; }
+    .dropoff-fill.secondary { background: #9a9a9a; }
+    .dropoff-pct {
+      font-size: clamp(20px, 2.5vw, 44px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      color: #000;
+      white-space: nowrap;
+    }
+    .dropoff-pct.primary { color: #000; }
+    .dropoff-pct.secondary { color: #9a9a9a; }
+
+    /* ── PULL QUOTE ───────────────────────────────────────── */
+    .pull-quote {
+      padding: clamp(48px, 6vw, 100px) clamp(24px, 8vw, 140px);
+      background: #fff;
+    }
+    .pull-quote blockquote {
+      font-size: clamp(24px, 3.7vw, 64px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+      color: #000;
+      max-width: 26ch;
+    }
+    .pull-quote blockquote em { color: #8f8f8f; font-style: normal; }
+    .pull-quote cite {
+      display: block;
+      margin-top: clamp(16px, 2vw, 32px);
+      font-size: clamp(11px, 0.9vw, 14px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      font-style: normal;
+    }
+
+    /* ── THREE BETS ───────────────────────────────────────── */
+    .bets-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(12px, 1.5vw, 24px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .bet-card {
+      background: #fff;
+      border-radius: clamp(16px, 2vw, 32px);
+      padding: clamp(24px, 3vw, 48px);
+    }
+    .bet-num {
+      font-size: clamp(40px, 5vw, 88px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      color: rgba(0,0,0,0.07);
+      line-height: 1;
+      margin-bottom: clamp(12px, 1.5vw, 24px);
+    }
+    .bet-title {
+      font-size: clamp(16px, 1.8vw, 30px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.25;
+      margin-bottom: clamp(8px, 1vw, 16px);
+    }
+    .bet-desc {
+      font-size: clamp(13px, 1.1vw, 18px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      line-height: 1.5;
+    }
+
+    /* ── SOLUTIONS ────────────────────────────────────────── */
+    .solutions {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 2vw, 32px);
+    }
+    .solution-card {
+      background: #fff;
+      border-radius: clamp(16px, 3vw, 52px);
+      padding: clamp(28px, 3.5vw, 56px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 36px);
+    }
+    .solution-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: clamp(16px, 3vw, 48px);
+      flex-wrap: wrap;
+    }
+    .solution-header-left { display: flex; flex-direction: column; gap: clamp(6px, 0.7vw, 10px); }
+    .solution-num {
+      font-size: clamp(11px, 0.9vw, 14px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+    .solution-title {
+      font-size: clamp(18px, 2.2vw, 36px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+    }
+    .solution-body {
+      font-size: clamp(13px, 1.1vw, 18px);
+      color: #6a6a6a;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+      max-width: 48ch;
+    }
+    .solution-change {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(12px, 1.5vw, 24px);
+    }
+    .change-item {
+      background: #f8f8f8;
+      border-radius: clamp(8px, 1vw, 14px);
+      padding: clamp(12px, 1.5vw, 22px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .change-badge {
+      font-size: clamp(9px, 0.7vw, 11px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+    .change-badge.before { background: rgba(0,0,0,0.06); color: #9a9a9a; }
+    .change-badge.after  { background: var(--green-dim); color: var(--green); }
+    .change-text {
+      font-size: clamp(12px, 1.05vw, 17px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.45;
+    }
+
+    /* Solution visual mock (component 5 only) */
+    .sol-visual {
+      background: #f5f5f5;
+      border-radius: clamp(8px, 1vw, 16px);
+      padding: clamp(24px, 3vw, 48px);
+      aspect-ratio: 3/1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    /* ── BEFORE / AFTER SLIDER ───────────────────────────── */
+    .compare-slider {
+      position: relative;
+      overflow: hidden;
+      border-radius: clamp(8px, 1vw, 16px);
+      background: #e8e8e8;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: pan-y;
+      cursor: ew-resize;
+      --pos: 50%;
+    }
+    .compare-slider img {
+      display: block;
+      width: 100%;
+      height: auto;
+      pointer-events: none;
+      -webkit-user-drag: none;
+      user-drag: none;
+      draggable: false;
+    }
+    .compare-before {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      clip-path: inset(0 calc(100% - var(--pos)) 0 0);
+    }
+    .compare-divider {
+      position: absolute;
+      inset: 0 auto 0 var(--pos);
+      width: 2px;
+      transform: translateX(-50%);
+      background: #fff;
+      pointer-events: none;
+      box-shadow: 0 0 8px rgba(0,0,0,0.25);
+    }
+    .compare-handle {
+      position: absolute;
+      top: 50%;
+      left: var(--pos);
+      transform: translate(-50%, -50%);
+      width: clamp(32px, 3vw, 48px);
+      height: clamp(32px, 3vw, 48px);
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      pointer-events: none;
+    }
+    .compare-handle-arrow {
+      width: 0; height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+    }
+    .compare-handle-arrow.left  { border-right: 6px solid rgba(0,0,0,0.35); }
+    .compare-handle-arrow.right { border-left:  6px solid rgba(0,0,0,0.35); }
+    .compare-label {
+      position: absolute;
+      bottom: clamp(10px, 1.2vw, 18px);
+      font-size: clamp(9px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 100px;
+      background: rgba(0,0,0,0.45);
+      color: #fff;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+    .compare-label.lbl-before { left: clamp(10px, 1.2vw, 18px); }
+    .compare-label.lbl-after  { right: clamp(10px, 1.2vw, 18px); }
+    .mock-bar {
+      height: clamp(8px, 1vw, 16px);
+      border-radius: 100px;
+      background: rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+    .mock-bar.short  { width: 35%; }
+    .mock-bar.medium { width: 55%; }
+    .mock-bar.long   { width: 80%; }
+    .mock-bar.full   { width: 100%; }
+    .mock-bar.green  { background: var(--green); width: 100%; }
+    .mock-bar.accent { background: rgba(0,0,0,0.25); }
+    .mock-pill {
+      height: clamp(28px, 3vw, 48px);
+      border-radius: 100px;
+      background: rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 8px;
+    }
+    .mock-pill .mock-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+    .mock-pill-inner { height: 8px; flex: 1; border-radius: 4px; background: rgba(0,0,0,0.15); }
+    .mock-card {
+      background: #fff;
+      border-radius: clamp(8px, 1vw, 16px);
+      padding: clamp(10px, 1.5vw, 20px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .mock-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .mock-row-bar {
+      height: 8px;
+      border-radius: 4px;
+      background: rgba(0,0,0,0.12);
+    }
+    .mock-spacer { flex: 1; }
+    .mock-highlight {
+      background: var(--green-dim);
+      border: 1.5px solid rgba(0,170,19,0.2);
+      border-radius: clamp(8px, 1vw, 16px);
+      padding: clamp(8px, 1vw, 16px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .mock-highlight-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .mock-highlight-bar { height: 8px; flex: 1; border-radius: 4px; background: rgba(0,170,19,0.3); }
+
+    /* ── DECISION SECTION ────────────────────────────────── */
+    .decision-section {
+      background: #27282a;
+      border-radius: clamp(20px, 4vw, 72px);
+      margin: 0 clamp(24px, 4vw, 72px);
+      color: #fff;
+      overflow: hidden;
+    }
+    .decision-section .cs-section-label { color: rgba(255,255,255,0.3); }
+    .decision-section .cs-h2 { color: #fff; }
+    .decision-section .cs-h2 strong { color: rgba(255,255,255,0.5); }
+    .decision-section .cs-body { color: rgba(255,255,255,0.5); }
+    .decision-header {
+      padding: clamp(48px, 6vw, 100px) clamp(48px, 6vw, 100px) clamp(36px, 4.5vw, 72px);
+    }
+
+    /* Full-width variant stage */
+    .variants-stage {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .variant-col {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .variant-col:last-child { border-right: none; }
+    .variant-col.chosen { background: rgba(0,170,19,0.04); }
+    .variant-col-header {
+      padding: clamp(24px, 3vw, 44px) clamp(32px, 4vw, 56px) clamp(20px, 2.5vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .variant-tag {
+      font-size: clamp(9px, 0.7vw, 11px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+    .variant-tag.chosen { color: var(--green); }
+    .variant-name {
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+    .variant-col img {
+      display: block;
+      width: 100%;
+      height: auto;
+      flex-shrink: 0;
+    }
+
+    /* Analysis strip */
+    .variants-analysis {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .variant-analysis-col {
+      padding: clamp(28px, 3.5vw, 52px) clamp(32px, 4vw, 56px);
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .variant-analysis-col:last-child { border-right: none; }
+    .variant-analysis-col.chosen { background: rgba(0,170,19,0.03); }
+    .analysis-block { margin-bottom: clamp(16px, 2vw, 24px); }
+    .analysis-block:last-child { margin-bottom: 0; }
+    .analysis-label {
+      font-size: clamp(9px, 0.7vw, 11px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .analysis-label.pros { color: var(--green); }
+    .analysis-label.cons { color: rgba(255,255,255,0.28); }
+    .analysis-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .analysis-list li {
+      font-size: clamp(13px, 1.1vw, 17px);
+      color: rgba(255,255,255,0.5);
+      letter-spacing: -0.02em;
+      line-height: 1.45;
+      display: flex;
+      gap: 8px;
+    }
+    .analysis-list li::before { content: '—'; opacity: 0.3; flex-shrink: 0; }
+    .decision-footer {
+      padding: clamp(28px, 3.5vw, 52px) clamp(48px, 6vw, 100px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .decision-footer p {
+      font-size: clamp(18px, 2.5vw, 42px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.3;
+      color: rgba(255,255,255,0.7);
+      max-width: 28ch;
+    }
+    .decision-footer p em { color: #fff; font-style: normal; }
+
+    /* ── RESULTS ─────────────────────────────────────────── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(16px, 2vw, 32px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .result-card {
+      background: #fff;
+      border-radius: clamp(16px, 2.5vw, 40px);
+      padding: clamp(28px, 3.5vw, 56px);
+    }
+    .result-card.featured {
+      background: var(--green-dim);
+      border: 1.5px solid rgba(0,170,19,0.15);
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(32px, 4vw, 64px);
+      align-items: center;
+    }
+    .result-number {
+      font-size: clamp(56px, 8vw, 140px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: var(--green);
+    }
+    .result-number.neutral { color: #000; }
+    .result-title {
+      font-size: clamp(16px, 1.8vw, 30px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      margin-bottom: clamp(8px, 1vw, 16px);
+    }
+    .result-body {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.5;
+    }
+    .result-divider {
+      width: 40px;
+      height: 2px;
+      background: var(--green);
+      margin: clamp(12px, 1.5vw, 24px) 0;
+    }
+
+    /* ── REFLECTION ──────────────────────────────────────── */
+    .reflection-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 40px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .reflection-item {
+      display: grid;
+      grid-template-columns: clamp(32px, 4vw, 64px) 1fr;
+      gap: clamp(16px, 2vw, 32px);
+      align-items: start;
+      padding-bottom: clamp(20px, 2.5vw, 40px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .reflection-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .reflection-n {
+      font-size: clamp(32px, 4vw, 72px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: rgba(0,0,0,0.07);
+    }
+    .reflection-title {
+      font-size: clamp(16px, 1.8vw, 30px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      margin-bottom: clamp(8px, 1vw, 16px);
+    }
+    .reflection-body {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+    }
+
+    /* ── BACK FOOTER ─────────────────────────────────────── */
+    .cs-footer {
+      background-color: #e9e9e9;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .footer-eyebrow {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      margin-bottom: clamp(12px, 1.5vw, 24px);
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: clamp(8px, 1vw, 16px);
+      border: 2px solid #000;
+      border-radius: 170px;
+      padding: clamp(10px, 1.39vw, 24px) clamp(18px, 2.78vw, 48px);
+      font-size: clamp(14px, 1.5vw, 26px);
+      font-weight: 500;
+      color: #000;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      transition: color 0.45s var(--ease);
+    }
+    .back-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #000;
+      border-radius: inherit;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.5s var(--ease);
+      z-index: -1;
+    }
+    .back-link:hover::before { transform: scaleX(1); }
+    .back-link:hover { color: #fff; }
+    .back-link svg { width: clamp(16px, 2vw, 32px); height: clamp(16px, 2vw, 32px); flex-shrink: 0; }
+    .footer-copy {
+      font-size: clamp(11px, 0.9vw, 14px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      text-align: right;
+    }
+
+    /* ── SCROLL REVEAL ────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+    }
+    .reveal.revealed { opacity: 1; transform: translateY(0); }
+
+    /* ── CURSOR ───────────────────────────────────────────── */
+    @media (hover: hover) and (pointer: fine) {
+      body, a, button { cursor: none; }
+      #cursor-glow {
+        position: fixed; top: 0; left: 0;
+        width: 32px; height: 32px; border-radius: 50%;
+        border: 1.5px solid rgba(0,0,0,0.55);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+        pointer-events: none; z-index: 9999; will-change: transform; opacity: 0;
+        transition:
+          opacity 0.35s ease,
+          width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+          height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+          border-radius 0.45s var(--ease);
+      }
+      #cursor-glow::before {
+        content: '';
+        position: absolute; top: 50%; left: 50%;
+        width: 4px; height: 4px; border-radius: 50%;
+        background: rgba(0,0,0,0.6);
+        transform: translate(-50%, -50%);
+        transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      #cursor-glow.active { opacity: 1; }
+      #cursor-glow.hovering {
+        width: 52px; height: 52px;
+        border-color: rgba(0,0,0,0.2);
+        background: rgba(255,255,255,0.12);
+      }
+      #cursor-glow.hovering::before {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+      }
+    }
+
+    /* ── KEYFRAMES ────────────────────────────────────────── */
+    @keyframes navIn { to { opacity:1; transform: translateX(-50%) translateY(0); } }
+    @keyframes lineUp { to { transform: translateY(0); } }
+    @keyframes fadeUp { to { opacity:1; transform: translateY(0); } }
+
+    /* ── RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .stats-band { grid-template-columns: repeat(2, 1fr); }
+      .funnel-grid { grid-template-columns: 1fr; }
+      .bets-grid { grid-template-columns: 1fr; }
+      .solution-change { grid-template-columns: 1fr; }
+      .variants-grid { grid-template-columns: 1fr; }
+      .result-card.featured { grid-template-columns: 1fr; grid-column: span 2; }
+      .results-grid { grid-template-columns: 1fr; }
+      .result-card.featured { grid-column: span 1; }
+    }
+    @media (max-width: 600px) {
+      .stats-band { grid-template-columns: 1fr 1fr; }
+      .cs-footer { flex-direction: column; align-items: flex-start; }
+      .footer-copy { text-align: left; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal, .cover { opacity: 1 !important; transform: none !important; }
+      #cursor-glow { display: none; }
+      body { cursor: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-back" aria-label="Back to portfolio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      Back
+    </a>
+    <a href="index.html" class="nav-logo">RT</a>
+    <span class="nav-tag">GoFood Checkout</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">
+      <div class="hero-tag-dot"></div>
+      Case study · GoFood · Android & iOS
+    </div>
+    <h1>
+      <span class="line-mask"><span class="line-inner black">Closing the leakiest</span></span>
+      <span class="line-mask"><span class="line-inner black">stage: rebuilding</span></span>
+      <span class="line-mask"><span class="line-inner gray">GoFood's checkout.</span></span>
+    </h1>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-value">Senior Product Designer</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Team</span>
+        <span class="meta-value">GoFood, Gojek</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Platform</span>
+        <span class="meta-value">Android & iOS</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Status</span>
+        <span class="meta-value">Shipped + A/B live</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COVER -->
+  <div class="cover reveal">
+    <img src="https://www.figma.com/api/mcp/asset/875389eb-aaf1-4d24-8b54-d02efb8ef6f2" alt="GoFood checkout redesign — case study visual">
+  </div>
+
+  <!-- TL;DR STATS BAND -->
+  <div class="stats-band reveal">
+    <div class="stat-item">
+      <span class="stat-number green" data-count="+2.9" data-suffix="%">+2.9%</span>
+      <span class="stat-desc">Sessions-to-booking for new users (Statsig validated)</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number green" data-count="+0.4" data-suffix="%">+0.4%</span>
+      <span class="stat-desc">Uplift for promo-sensitive users from the floating offer bar</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number muted">52%</span>
+      <span class="stat-desc">Original checkout-to-booking conversion — the problem to beat</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number muted" data-count="903" data-suffix="">903</span>
+      <span class="stat-desc">Users surveyed in the drop-off study that shaped the redesign</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- THE PROBLEM -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">The problem</div>
+    <div class="funnel-grid">
+      <div class="reveal">
+        <h2 class="cs-h2">A funnel that <strong>fell off a cliff.</strong></h2>
+        <p class="cs-body">GoFood's ordering funnel had three steps. The first two held up fine. The last one didn't. Almost half the users who made it to checkout — people who had already browsed, chosen a restaurant, built a cart — never placed an order.</p>
+        <p class="cs-body" style="margin-top: 16px;">This isn't a friction problem. It's a trust problem that only surfaces after the user has already invested.</p>
+        <div class="funnel-insight" style="margin-top: clamp(24px, 3vw, 48px);">
+          <p>For years, checkout was treated as a confirmation screen. We started treating it as a conversion screen.</p>
+        </div>
+      </div>
+      <div class="funnel reveal">
+        <div class="funnel-step">
+          <div class="funnel-step-header">
+            <span class="funnel-step-label">Home → Merchant profile</span>
+            <span class="funnel-step-pct">74%</span>
+          </div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" data-width="74"></div>
+          </div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-step-header">
+            <span class="funnel-step-label">Merchant profile → Checkout</span>
+            <span class="funnel-step-pct">70%</span>
+          </div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill" data-width="70"></div>
+          </div>
+        </div>
+        <div class="funnel-step">
+          <div class="funnel-step-header">
+            <span class="funnel-step-label">Checkout → Booking</span>
+            <span class="funnel-step-pct problem">52%</span>
+          </div>
+          <div class="funnel-bar-track">
+            <div class="funnel-bar-fill problem" data-width="52"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- DROP-OFF STUDY -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">The evidence</div>
+    <div class="funnel-grid">
+      <div class="reveal">
+        <h2 class="cs-h2">903 users. <strong>One clear finding.</strong></h2>
+        <p class="cs-body">We ran a drop-off study to understand why users abandoned checkout. The top four reasons were <em>all</em> about price and promo. Deals existed. Users couldn't see them.</p>
+        <p class="cs-body" style="margin-top: 16px;">Promo application had stagnated at ~60% for some time, with new users under-applying despite qualifying. The problem wasn't friction in the form — it was discoverability.</p>
+      </div>
+      <div class="dropoff-chart reveal">
+        <div class="dropoff-row">
+          <div class="dropoff-bar-wrap">
+            <span class="dropoff-label">Can't find a suitable promo</span>
+            <div class="dropoff-track">
+              <div class="dropoff-fill primary" data-width="81"></div>
+            </div>
+          </div>
+          <span class="dropoff-pct primary">81%</span>
+        </div>
+        <div class="dropoff-row">
+          <div class="dropoff-bar-wrap">
+            <span class="dropoff-label">Delivery and fees too expensive</span>
+            <div class="dropoff-track">
+              <div class="dropoff-fill secondary" data-width="67"></div>
+            </div>
+          </div>
+          <span class="dropoff-pct secondary">67%</span>
+        </div>
+        <div class="dropoff-row">
+          <div class="dropoff-bar-wrap">
+            <span class="dropoff-label">Went directly to restaurant instead</span>
+            <div class="dropoff-track">
+              <div class="dropoff-fill secondary" data-width="43"></div>
+            </div>
+          </div>
+          <span class="dropoff-pct secondary">43%</span>
+        </div>
+        <div class="dropoff-row">
+          <div class="dropoff-bar-wrap">
+            <span class="dropoff-label">Price cheaper at competitor</span>
+            <div class="dropoff-track">
+              <div class="dropoff-fill secondary" data-width="27"></div>
+            </div>
+          </div>
+          <span class="dropoff-pct secondary">27%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL QUOTE 1 -->
+  <div class="pull-quote">
+    <blockquote>"The problem wasn't friction. It was <em>promo discoverability</em> and relevancy."</blockquote>
+    <cite>Drop-off study finding, n = 903</cite>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CANCELLATIONS -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">A second problem</div>
+    <div class="funnel-grid">
+      <div class="reveal">
+        <h2 class="cs-h2">Checkout was leaking <strong>after booking too.</strong></h2>
+        <p class="cs-body">Over Jul–Sep, 75,422 cancellations traced back to information that should have been confirmed at checkout. This reframed the work entirely. Checkout isn't just a conversion screen — it's the <em>last reliable point</em> where an order can still be made correct.</p>
+      </div>
+      <div class="reveal">
+        <div style="display: flex; flex-direction: column; gap: clamp(8px, 1vw, 16px);">
+          <div style="background: #fff; border-radius: clamp(12px, 1.5vw, 24px); padding: clamp(16px, 2vw, 32px); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: clamp(13px, 1.2vw, 20px); letter-spacing: -0.02em; color: #454545;">Need to edit address</span>
+            <span style="font-size: clamp(18px, 2.2vw, 36px); font-weight: 600; letter-spacing: -0.04em; color: #000;">33,239</span>
+          </div>
+          <div style="background: #fff; border-radius: clamp(12px, 1.5vw, 24px); padding: clamp(16px, 2vw, 32px); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: clamp(13px, 1.2vw, 20px); letter-spacing: -0.02em; color: #454545;">Multiple booking created</span>
+            <span style="font-size: clamp(18px, 2.2vw, 36px); font-weight: 600; letter-spacing: -0.04em; color: #000;">16,915</span>
+          </div>
+          <div style="background: #fff; border-radius: clamp(12px, 1.5vw, 24px); padding: clamp(16px, 2vw, 32px); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: clamp(13px, 1.2vw, 20px); letter-spacing: -0.02em; color: #454545;">Need to edit items</span>
+            <span style="font-size: clamp(18px, 2.2vw, 36px); font-weight: 600; letter-spacing: -0.04em; color: #000;">15,854</span>
+          </div>
+          <div style="background: #fff; border-radius: clamp(12px, 1.5vw, 24px); padding: clamp(16px, 2vw, 32px); display: flex; justify-content: space-between; align-items: center; opacity: 0.5;">
+            <span style="font-size: clamp(13px, 1.2vw, 20px); letter-spacing: -0.02em; color: #454545;">+ 2 more reasons</span>
+            <span style="font-size: clamp(18px, 2.2vw, 36px); font-weight: 600; letter-spacing: -0.04em; color: #000;">9,414</span>
+          </div>
+          <div style="background: rgba(0,0,0,0.04); border-radius: clamp(12px, 1.5vw, 24px); padding: clamp(16px, 2vw, 32px); display: flex; justify-content: space-between; align-items: center; border: 1.5px solid rgba(0,0,0,0.08);">
+            <span style="font-size: clamp(11px, 0.9vw, 15px); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #9a9a9a;">Total cancellations (Jul–Sep)</span>
+            <span style="font-size: clamp(20px, 2.5vw, 42px); font-weight: 600; letter-spacing: -0.04em; color: #000;">75,422</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- THREE BETS -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">Framing the work</div>
+    <h2 class="cs-h2 reveal">Three bets, <strong>one north star.</strong></h2>
+    <p class="cs-body reveal">I rolled the symptoms into three improvement bets. Together they pointed to a north star: <em>"Help users accurately and quickly check out while having the best deal possible."</em></p>
+    <div class="bets-grid">
+      <div class="bet-card reveal">
+        <div class="bet-num">01</div>
+        <div class="bet-title">Promo discoverability & relevancy</div>
+        <div class="bet-desc">Surface eligible deals where users actually look. The data shows they exist — users just can't find them.</div>
+      </div>
+      <div class="bet-card reveal">
+        <div class="bet-num">02</div>
+        <div class="bet-title">Component straightforwardness</div>
+        <div class="bet-desc">Fix inconsistent containers and weak visual hierarchy. Clarity at the structural level is usually undervalued.</div>
+      </div>
+      <div class="bet-card reveal">
+        <div class="bet-num">03</div>
+        <div class="bet-title">A scalable IA framework</div>
+        <div class="bet-desc">Stop future additions getting bolted on as one-offs. Design a system, not just a screen.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL QUOTE 2 -->
+  <div class="pull-quote">
+    <blockquote>"Help users <em>accurately and quickly</em> check out while having the best deal possible."</blockquote>
+    <cite>North star, GoFood Checkout redesign</cite>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- SOLUTIONS -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">The solution</div>
+    <h2 class="cs-h2 reveal">Five components. <strong>One end state.</strong></h2>
+    <p class="cs-body reveal" style="margin-bottom: clamp(32px, 4vw, 64px);">The redesign consolidates five components. Milestone 1 ships proven components; one moves to A/B testing because usability research deliberately split on it.</p>
+
+    <div class="solutions">
+
+      <!-- 1. Savings Banner -->
+      <div class="solution-card reveal">
+        <div class="solution-header">
+          <div class="solution-header-left">
+            <div class="solution-num">Component 01</div>
+            <div class="solution-title">Consolidated savings banner, up top</div>
+          </div>
+          <div class="solution-body">UT showed users <em>prefer</em> knowing savings up front — it shapes how they read the rest of the screen and reframes the price they're about to commit to.</div>
+        </div>
+        <div class="compare-slider">
+          <img class="compare-after"  src="Savings - After.png"  alt="Savings banner — after" draggable="false">
+          <img class="compare-before" src="Savings - Before.png" alt="Savings banner — before" draggable="false">
+          <div class="compare-divider"></div>
+          <div class="compare-handle">
+            <div class="compare-handle-arrow left"></div>
+            <div class="compare-handle-arrow right"></div>
+          </div>
+          <span class="compare-label lbl-before">Before</span>
+          <span class="compare-label lbl-after">After</span>
+        </div>
+        <div class="solution-change">
+          <div class="change-item">
+            <span class="change-badge before">Before</span>
+            <span class="change-text">Savings info lived at the bottom of payment summary, near the CTA. Users saw it <em>after</em> absorbing the total.</span>
+          </div>
+          <div class="change-item">
+            <span class="change-badge after">After</span>
+            <span class="change-text">Moved up top, persistent. Savings reframe the price before users commit.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Compact Address -->
+      <div class="solution-card reveal">
+        <div class="solution-header">
+          <div class="solution-header-left">
+            <div class="solution-num">Component 02</div>
+            <div class="solution-title">Compact address component</div>
+          </div>
+          <div class="solution-body">UT showed clear preference for the compact form. The previous design was over-instrumented for a job most users only need to do once.</div>
+        </div>
+        <div class="compare-slider">
+          <img class="compare-after"  src="Address - After.png"  alt="Address component — after" draggable="false">
+          <img class="compare-before" src="Address - Before.png" alt="Address component — before" draggable="false">
+          <div class="compare-divider"></div>
+          <div class="compare-handle">
+            <div class="compare-handle-arrow left"></div>
+            <div class="compare-handle-arrow right"></div>
+          </div>
+          <span class="compare-label lbl-before">Before</span>
+          <span class="compare-label lbl-after">After</span>
+        </div>
+        <div class="solution-change">
+          <div class="change-item">
+            <span class="change-badge before">Before</span>
+            <span class="change-text">Address card with separate "Add address details" and "Notes" actions, eating ~3 lines.</span>
+          </div>
+          <div class="change-item">
+            <span class="change-badge after">After</span>
+            <span class="change-text">Single card: address, house note, and edit inline.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Delivery Options -->
+      <div class="solution-card reveal">
+        <div class="solution-header">
+          <div class="solution-header-left">
+            <div class="solution-num">Component 03</div>
+            <div class="solution-title">Consolidated delivery options</div>
+          </div>
+          <div class="solution-body">Users couldn't compare easily. The most important decision on the screen lacked a layout that supported the decision. Redesigned to support cross-option comparison on ETA, price, and USP in one glance.</div>
+        </div>
+        <div class="compare-slider">
+          <img class="compare-after"  src="Delivery options - After.png"  alt="Delivery options — after" draggable="false">
+          <img class="compare-before" src="Delivery options - Before.png" alt="Delivery options — before" draggable="false">
+          <div class="compare-divider"></div>
+          <div class="compare-handle">
+            <div class="compare-handle-arrow left"></div>
+            <div class="compare-handle-arrow right"></div>
+          </div>
+          <span class="compare-label lbl-before">Before</span>
+          <span class="compare-label lbl-after">After</span>
+        </div>
+        <div class="solution-change">
+          <div class="change-item">
+            <span class="change-badge before">Before</span>
+            <span class="change-text">Express / Regular / Mode Hemat shown as a vertical list with similar visual weight.</span>
+          </div>
+          <div class="change-item">
+            <span class="change-badge after">After</span>
+            <span class="change-text">Supports ETA, price, and USP comparison in one glance. This component moved to A/B testing — more on that below.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Floating Promo -->
+      <div class="solution-card reveal">
+        <div class="solution-header">
+          <div class="solution-header-left">
+            <div class="solution-num">Component 04</div>
+            <div class="solution-title">Best-promo floating nudge</div>
+          </div>
+          <div class="solution-body">UT showed better discoverability <em>and</em> comprehension — users read it as "the best deal currently available to me" rather than a generic promo slot. This was the component that drove the +0.4% uplift for promo-sensitive users.</div>
+        </div>
+        <div class="compare-slider">
+          <img class="compare-after"  src="Promo - After.png"  alt="Promo nudge — after" draggable="false">
+          <img class="compare-before" src="Promo - Before.png" alt="Promo nudge — before" draggable="false">
+          <div class="compare-divider"></div>
+          <div class="compare-handle">
+            <div class="compare-handle-arrow left"></div>
+            <div class="compare-handle-arrow right"></div>
+          </div>
+          <span class="compare-label lbl-before">Before</span>
+          <span class="compare-label lbl-after">After</span>
+        </div>
+        <div class="solution-change">
+          <div class="change-item">
+            <span class="change-badge before">Before</span>
+            <span class="change-text">Promo bar lived above payment summary as a static row, easy to miss.</span>
+          </div>
+          <div class="change-item">
+            <span class="change-badge after">After</span>
+            <span class="change-text">Floats above content as users scroll, anchored near the CTA.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. SKU + Payment + Price -->
+      <div class="solution-card reveal">
+        <div class="solution-header">
+          <div class="solution-header-left">
+            <div class="solution-num">Component 05</div>
+            <div class="solution-title">SKU cart, payment hierarchy, pre/post-savings price</div>
+          </div>
+          <div class="solution-body">Three quieter changes that compound. The changes nobody would describe as flashy — and the ones that moved the funnel the most.</div>
+        </div>
+        <div class="compare-slider">
+          <img class="compare-after"  src="SKU Cart - After.png"  alt="SKU cart — after" draggable="false">
+          <img class="compare-before" src="SKU Cart - Before.png" alt="SKU cart — before" draggable="false">
+          <div class="compare-divider"></div>
+          <div class="compare-handle">
+            <div class="compare-handle-arrow left"></div>
+            <div class="compare-handle-arrow right"></div>
+          </div>
+          <span class="compare-label lbl-before">Before</span>
+          <span class="compare-label lbl-after">After</span>
+        </div>
+        <div class="solution-change">
+          <div class="change-item">
+            <span class="change-badge before">Before</span>
+            <span class="change-text">Menu photo, flat payment list, no savings signal — three quiet sources of friction at the moment of commitment.</span>
+          </div>
+          <div class="change-item">
+            <span class="change-badge after">After</span>
+            <span class="change-text">Photo dropped, primary payment method leads visually, pre/post-savings price shown. Small changes that compound.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- KEY DECISION -->
+  <div style="padding: 0 0 clamp(60px, 7vw, 120px);">
+    <div class="decision-section reveal">
+
+      <div class="decision-header">
+        <div class="cs-section-label">The decision I want to highlight</div>
+        <h2 class="cs-h2" style="margin-top: clamp(12px, 1.5vw, 24px);">When the data didn't <strong>give a clean answer.</strong></h2>
+        <p class="cs-body" style="margin-top: clamp(12px, 1.5vw, 24px);">The delivery options component was where UT didn't converge — and we resisted the urge to pick by taste.</p>
+      </div>
+
+      <!-- Full-width variant stage -->
+      <div class="variants-stage">
+        <div class="variant-col">
+          <div class="variant-col-header">
+            <span class="variant-tag">In A/B testing</span>
+            <span class="variant-name">Variant A — Horizontal</span>
+          </div>
+          <img src="Var A.png" alt="Variant A — Horizontal delivery options" draggable="false">
+        </div>
+        <div class="variant-col chosen">
+          <div class="variant-col-header">
+            <span class="variant-tag chosen">Default end state ✓</span>
+            <span class="variant-name">Variant B — Vertical</span>
+          </div>
+          <img src="Var B.png" alt="Variant B — Vertical delivery options" draggable="false">
+        </div>
+      </div>
+
+      <!-- Analysis strip -->
+      <div class="variants-analysis">
+        <div class="variant-analysis-col">
+          <div class="analysis-block">
+            <div class="analysis-label pros">Pros</div>
+            <ul class="analysis-list">
+              <li>More compact — more info in one fold</li>
+              <li>Felt delightful in usability testing</li>
+            </ul>
+          </div>
+          <div class="analysis-block">
+            <div class="analysis-label cons">Cons</div>
+            <ul class="analysis-list">
+              <li>Scheduled and Hemat options suffer discoverability</li>
+              <li>Not the best layout for comparing</li>
+              <li>Limited character budget for USP copy</li>
+            </ul>
+          </div>
+        </div>
+        <div class="variant-analysis-col chosen">
+          <div class="analysis-block">
+            <div class="analysis-label pros">Pros</div>
+            <ul class="analysis-list">
+              <li>Familiar pattern — lower cognitive load</li>
+              <li>More room for USP copy per option</li>
+              <li>Better for comparing ETA, price, and features</li>
+              <li>All options always discoverable</li>
+            </ul>
+          </div>
+          <div class="analysis-block">
+            <div class="analysis-label cons">Cons</div>
+            <ul class="analysis-list">
+              <li>Uses more vertical space</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="decision-footer">
+        <p>"The horizontal variant <em>feels</em> like the better design. The vertical variant <em>behaves</em> like the better design once users start comparing. Comparison is the actual job-to-be-done."</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <section class="cs-section" style="padding-top: 0;">
+    <div class="cs-section-label reveal">The result</div>
+    <h2 class="cs-h2 reveal">Quiet changes. <strong>Real lift.</strong></h2>
+    <div class="results-grid">
+      <div class="result-card featured reveal">
+        <div>
+          <div class="result-number" data-count="2.9" data-suffix="%">+2.9%</div>
+          <div class="result-divider"></div>
+          <div class="result-title">Sessions-to-booking, new users</div>
+        </div>
+        <div>
+          <p class="result-body">Driven by the components that did the quietest work — clarified visual hierarchy, compact address, restructured SKU cart, pre/post-savings price. The changes nobody would describe as flashy were the ones that moved the funnel.</p>
+          <p class="result-body" style="margin-top: 12px;">This was the cohort the drop-off study said was hurting most. The lift landing specifically on new users is the satisfying confirmation: we designed for the right segment.</p>
+        </div>
+      </div>
+      <div class="result-card reveal">
+        <div class="result-number" style="font-size: clamp(40px, 5vw, 88px);" data-count="0.4" data-suffix="%">+0.4%</div>
+        <div class="result-divider"></div>
+        <div class="result-title">Promo-sensitive users</div>
+        <p class="result-body">From the floating offer bar. Smaller in absolute terms — but pointing somewhere important. Users who weren't promo-sensitive ignored it, which is the <em>right</em> failure mode for a component like this.</p>
+      </div>
+      <div class="result-card reveal">
+        <div class="result-number neutral" style="font-size: clamp(32px, 4vw, 72px);">Segment-aware</div>
+        <div class="result-divider" style="background: #000;"></div>
+        <div class="result-title">The real insight</div>
+        <p class="result-body">The segment-specific lift tells a bigger story: our highest-leverage next step isn't designing one better screen — it's designing the <em>right</em> screen for each user type.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL QUOTE 3 -->
+  <div class="pull-quote">
+    <blockquote>"The interesting finding wasn't the lift itself. It was that the lift was <em>segment-specific</em> — which means our biggest next opportunity is designing the right screen for each segment."</blockquote>
+    <cite>Post-launch reflection</cite>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- REFLECTION -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">Reflection</div>
+    <h2 class="cs-h2 reveal">What the data <strong>confirmed, surprised,</strong> and taught me.</h2>
+    <div class="reflection-list">
+      <div class="reflection-item reveal">
+        <div class="reflection-n">01</div>
+        <div>
+          <div class="reflection-title">Segment-aware design is the next bet</div>
+          <p class="reflection-body">The floating offer bar's segment-specific lift is the clearest signal in the dataset. The highest-leverage version of this work going forward isn't a universal redesign — it's a checkout that adapts to who's looking at it.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">02</div>
+        <div>
+          <div class="reflection-title">The "boring" components carried the conversion win</div>
+          <p class="reflection-body">The +2.9% for new users came from visual hierarchy and separation work, not from the components I expected to headline. Clarity at the structural level is usually undervalued vs. clever new components.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">03</div>
+        <div>
+          <div class="reflection-title">An IA framework is only as durable as the team's commitment to it</div>
+          <p class="reflection-body">The real test isn't this launch — it's whether the next checkout addition respects the framework or breaks it. That requires design and product alignment to hold the line.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">04</div>
+        <div>
+          <div class="reflection-title">Cancellation reduction is the harder win to measure</div>
+          <p class="reflection-body">Conversion lift was measurable inside the existing experiment infrastructure. Cancellation reduction requires connecting checkout-time edits to downstream cancellation reasons. I'd invest in that instrumentation upfront next time.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">05</div>
+        <div>
+          <div class="reflection-title">What I'd do differently</div>
+          <p class="reflection-body">Pre-experiment, I'd propose the segment cut as a primary metric, not secondary. The story the data tells is clearer by segment than in aggregate — but we set up experiments thinking aggregate would be the headline. That framing cost us a sharper readout.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="cs-footer">
+    <div>
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to all work
+      </a>
+    </div>
+    <div class="footer-copy">
+      <div>© 2026 Rizha Teuku</div>
+      <div style="margin-top: 4px;">Senior Product Designer, Gojek</div>
+    </div>
+  </footer>
+
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <script>
+    // Nav
+    // (navIn animation handles itself via CSS)
+
+    // Scroll reveals + funnel/bar animations
+    const revealEls = document.querySelectorAll('.reveal');
+    const barEls    = document.querySelectorAll('[data-width]');
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+
+        // Generic reveal
+        if (el.classList.contains('reveal')) {
+          el.classList.add('revealed');
+        }
+
+        // Funnel / dropoff bars inside this element
+        el.querySelectorAll('[data-width]').forEach(bar => {
+          bar.style.width = bar.dataset.width + '%';
+        });
+
+        io.unobserve(el);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    // Also observe bare bar elements (outside .reveal wrappers)
+    const barIo = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.style.width = entry.target.dataset.width + '%';
+        barIo.unobserve(entry.target);
+      });
+    }, { threshold: 0.2 });
+
+    revealEls.forEach(el => io.observe(el));
+    barEls.forEach(el => barIo.observe(el));
+
+    // Stagger children in .bets-grid and .reflection-list
+    document.querySelectorAll('.bets-grid > .reveal, .reflection-list > .reveal').forEach((el, i) => {
+      el.style.transitionDelay = (i * 80) + 'ms';
+    });
+
+    // Cursor
+    ;(function () {
+      const cur = document.getElementById('cursor-glow');
+      if (!cur || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      let mx = 0, my = 0, cx = -60, cy = -60;
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.classList.add('active'); }, { passive: true });
+      document.addEventListener('mouseleave', () => cur.classList.remove('active'));
+      document.addEventListener('mouseenter', () => cur.classList.add('active'));
+      document.querySelectorAll('a, button').forEach(el => {
+        el.addEventListener('mouseenter', () => cur.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => cur.classList.remove('hovering'));
+      });
+      (function tick() {
+        cx += (mx - cx) * 0.13;
+        cy += (my - cy) * 0.13;
+        cur.style.left = cx + 'px';
+        cur.style.top  = cy + 'px';
+        cur.style.transform = 'translate(-50%,-50%)';
+        requestAnimationFrame(tick);
+      })();
+    })();
+  // ── BEFORE/AFTER SLIDERS ──
+  document.querySelectorAll('.compare-slider').forEach(slider => {
+    let dragging = false;
+
+    function setPos(clientX) {
+      const rect = slider.getBoundingClientRect();
+      const pct  = Math.min(100, Math.max(0, (clientX - rect.left) / rect.width * 100));
+      slider.style.setProperty('--pos', pct + '%');
+    }
+
+    slider.addEventListener('mousedown', e => {
+      e.preventDefault();
+      dragging = true;
+      setPos(e.clientX);
+    });
+    slider.addEventListener('touchstart', e => {
+      dragging = true;
+      setPos(e.touches[0].clientX);
+    }, { passive: true });
+
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      e.preventDefault();
+      setPos(e.clientX);
+    });
+    window.addEventListener('touchmove', e => {
+      if (dragging) setPos(e.touches[0].clientX);
+    }, { passive: true });
+
+    window.addEventListener('mouseup',  () => { dragging = false; });
+    window.addEventListener('touchend', () => { dragging = false; });
+  });
+  </script>
+</body>
+</html>

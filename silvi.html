@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Silvi — Contactless Dining — Rizha Teuku</title>
+  <meta name="description" content="How I designed a POS and contactless dining web-app that cut restaurant serving time from 34 to 23 minutes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    :root {
+      --amber: #D4900A;
+      --amber-dim: rgba(212,144,10,0.09);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background-color: #e9e9e9;
+      background-image:
+        radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, #ffffff 0%, #e9e9e9 clamp(500px, 40vw, 1100px));
+      background-size: 24px 24px, 100% 100%;
+      background-repeat: repeat, no-repeat;
+      color: #1c1d1d;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: clamp(20px, 3.7vw, 64px);
+      left: clamp(24px, 4vw, 72px);
+      transform: translateY(-8px);
+      display: flex;
+      align-items: center;
+      gap: clamp(20px, 2.78vw, 48px);
+      padding: clamp(10px, 1.39vw, 24px) clamp(16px, 1.85vw, 32px);
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 60px;
+      font-size: clamp(13px, 1.2vw, 20px);
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      z-index: 100;
+      opacity: 0;
+      animation: navIn 0.7s var(--ease) 0.1s forwards;
+    }
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(0,0,0,0.5);
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #000; }
+    .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── HERO ─────────────────────────────────────────────── */
+    .hero {
+      padding: clamp(140px, 16vw, 260px) clamp(24px, 8vw, 140px) clamp(60px, 6vw, 100px);
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(11px, 0.97vw, 16px);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: clamp(20px, 2.3vw, 40px);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 0.2s forwards;
+    }
+    .hero-tag-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--amber); flex-shrink: 0;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5.2vw, 90px);
+      font-weight: 400;
+      line-height: 1.07;
+      letter-spacing: -0.04em;
+      max-width: 18ch;
+      margin-bottom: clamp(28px, 3.5vw, 60px);
+    }
+    .line-mask { display: block; overflow: hidden; padding-bottom: 0.06em; }
+    .line-inner { display: block; }
+    .line-inner.black {
+      color: #000;
+      transform: translateY(110%);
+      animation: lineUp 1s var(--ease) 0.35s forwards;
+    }
+    .line-inner.gray {
+      color: #8f8f8f;
+      transform: translateY(110%);
+      animation: lineUp 1s var(--ease) 0.52s forwards;
+    }
+    .hero-meta {
+      display: flex;
+      gap: clamp(24px, 3.5vw, 60px);
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s var(--ease) 0.85s forwards;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 4px; }
+    .meta-label {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+    }
+    .meta-value {
+      font-size: clamp(14px, 1.2vw, 20px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #000;
+    }
+
+    /* ── COVER ───────────────────────────────────────────── */
+    .cover {
+      margin: 0 clamp(24px, 4vw, 72px);
+      border-radius: clamp(16px, 3.5vw, 60px);
+      overflow: hidden;
+      aspect-ratio: 1632/938;
+      background: #f0f0f0;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1s var(--ease), transform 1s var(--ease);
+    }
+    .cover.revealed { opacity: 1; transform: translateY(0); }
+    .cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-placeholder {
+      width: 100%; height: 100%;
+      background: linear-gradient(135deg, #2b1f05 0%, #5a3c0a 50%, #2b1f05 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cover-placeholder-text {
+      font-size: clamp(14px, 2vw, 32px);
+      color: rgba(255,255,255,0.15);
+      letter-spacing: -0.04em;
+      font-weight: 500;
+    }
+
+    /* ── SECTIONS ─────────────────────────────────────────── */
+    .cs-section {
+      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .cs-section-label {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      margin-bottom: clamp(16px, 1.85vw, 32px);
+    }
+    .cs-h2 {
+      font-size: clamp(28px, 3.7vw, 64px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: clamp(16px, 2vw, 36px);
+      max-width: 24ch;
+    }
+    .cs-h2 strong { font-weight: 600; color: #000; }
+    .cs-body {
+      font-size: clamp(15px, 1.4vw, 24px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+      max-width: 60ch;
+    }
+    .cs-body + .cs-body { margin-top: 1em; }
+
+    /* ── DIVIDER ──────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: rgba(0,0,0,0.08);
+      margin: 0 clamp(24px, 8vw, 140px);
+    }
+
+    /* ── STATS BAND ──────────────────────────────────────── */
+    .stats-band {
+      background: #fff;
+      border-radius: clamp(16px, 3.5vw, 60px);
+      margin: clamp(40px, 5vw, 80px) clamp(24px, 4vw, 72px);
+      padding: clamp(40px, 5vw, 80px) clamp(32px, 5vw, 80px);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(24px, 3vw, 48px);
+    }
+    @media (max-width: 800px) {
+      .stats-band { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 0.8vw, 14px);
+      padding-left: clamp(16px, 2vw, 32px);
+      border-left: 2px solid rgba(0,0,0,0.08);
+    }
+    .stat-item:first-child { border-left: none; padding-left: 0; }
+    .stat-number {
+      font-size: clamp(36px, 5.2vw, 90px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: #000;
+    }
+    .stat-number.amber { color: var(--amber); }
+    .stat-number.muted { color: #c0c0c0; }
+    .stat-desc {
+      font-size: clamp(12px, 1.1vw, 18px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+    }
+
+    /* ── QUOTES GRID ─────────────────────────────────────── */
+    .quotes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(16px, 2vw, 32px);
+      margin-top: clamp(32px, 4vw, 60px);
+    }
+    @media (max-width: 700px) {
+      .quotes-grid { grid-template-columns: 1fr; }
+    }
+    .quote-card {
+      background: #fff;
+      border-radius: clamp(14px, 2vw, 28px);
+      padding: clamp(24px, 3vw, 48px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 1.5vw, 24px);
+    }
+    .quote-mark {
+      font-size: clamp(40px, 4vw, 72px);
+      line-height: 0.7;
+      color: rgba(0,0,0,0.08);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      user-select: none;
+    }
+    .quote-text {
+      font-size: clamp(15px, 1.4vw, 22px);
+      color: #1c1d1d;
+      letter-spacing: -0.03em;
+      line-height: 1.5;
+      font-weight: 400;
+    }
+    .quote-attr {
+      font-size: clamp(11px, 0.9vw, 15px);
+      color: #9a9a9a;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── TWO COL ─────────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(32px, 5vw, 80px);
+      align-items: start;
+    }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* ── PAIN POINTS LIST ────────────────────────────────── */
+    .pain-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(12px, 1.5vw, 24px);
+      margin-top: clamp(24px, 3vw, 48px);
+    }
+    .pain-item {
+      display: flex;
+      align-items: flex-start;
+      gap: clamp(12px, 1.5vw, 20px);
+      background: #fff;
+      border-radius: clamp(12px, 1.5vw, 22px);
+      padding: clamp(18px, 2.2vw, 36px);
+    }
+    .pain-icon {
+      width: clamp(32px, 3.5vw, 56px);
+      height: clamp(32px, 3.5vw, 56px);
+      border-radius: 50%;
+      background: rgba(0,0,0,0.05);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: clamp(16px, 1.8vw, 28px);
+    }
+    .pain-text {
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .pain-title {
+      font-size: clamp(14px, 1.3vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #1c1d1d;
+    }
+    .pain-desc {
+      font-size: clamp(12px, 1.05vw, 17px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+    }
+
+    /* ── GOALS LIST ──────────────────────────────────────── */
+    .goals-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(10px, 1.2vw, 20px);
+      margin-top: clamp(24px, 3vw, 48px);
+    }
+    .goal-item {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 1.2vw, 18px);
+      padding: clamp(14px, 1.8vw, 28px) clamp(18px, 2.2vw, 36px);
+      border-radius: clamp(10px, 1.5vw, 20px);
+      background: var(--amber-dim);
+      border: 1.5px solid rgba(212,144,10,0.15);
+    }
+    .goal-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--amber); flex-shrink: 0;
+    }
+    .goal-text {
+      font-size: clamp(14px, 1.3vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #1c1d1d;
+    }
+
+    /* ── SOLUTION CARDS (reused in iteration section) ──── */
+    .solution-card {
+      background: #fff;
+      border-radius: clamp(14px, 2vw, 28px);
+      padding: clamp(28px, 3.5vw, 56px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 1.8vw, 28px);
+    }
+    .solution-eyebrow {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+    .solution-title {
+      font-size: clamp(22px, 2.8vw, 48px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      color: #1c1d1d;
+    }
+    .solution-body {
+      font-size: clamp(14px, 1.2vw, 20px);
+      color: #6a6a6a;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+    }
+
+    /* ── SOLUTION PROTOTYPES ─────────────────────────────── */
+    .solution-proto-stack {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 36px);
+      margin-top: clamp(32px, 4vw, 60px);
+    }
+    .solution-proto {
+      border-radius: clamp(16px, 2vw, 32px);
+      overflow: hidden;
+    }
+    .solution-proto img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .solution-proto-caption {
+      display: flex;
+      gap: clamp(24px, 4vw, 64px);
+      align-items: flex-start;
+      padding: clamp(24px, 3vw, 44px) clamp(28px, 3.5vw, 52px);
+    }
+    .solution-proto.merchants .solution-proto-caption { background: #f5f4f1; }
+    .solution-proto.customers .solution-proto-caption { background: #1c1d1d; }
+    .solution-proto-eyebrow {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--amber);
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding-top: 4px;
+    }
+    .solution-proto.customers .solution-proto-eyebrow { color: rgba(212,144,10,0.8); }
+    .solution-proto-text { display: flex; flex-direction: column; gap: 8px; }
+    .solution-proto-title {
+      font-size: clamp(18px, 2vw, 32px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.15;
+      color: #1c1d1d;
+    }
+    .solution-proto.customers .solution-proto-title { color: #fff; }
+    .solution-proto-body {
+      font-size: clamp(13px, 1.1vw, 18px);
+      color: #6a6a6a;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+    }
+    .solution-proto.customers .solution-proto-body { color: rgba(255,255,255,0.5); }
+
+    /* ── OUTPUT LIST ─────────────────────────────────────── */
+    .output-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 36px);
+      margin-top: clamp(32px, 4vw, 60px);
+    }
+    .output-item {
+      border-radius: clamp(16px, 2vw, 28px);
+      overflow: hidden;
+    }
+    .output-item img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .output-item-caption {
+      display: flex;
+      gap: clamp(24px, 4vw, 64px);
+      align-items: flex-start;
+      padding: clamp(24px, 3vw, 40px) clamp(28px, 3.5vw, 52px);
+      background: #f5f4f1;
+    }
+    .output-num {
+      font-size: clamp(11px, 0.9vw, 14px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--amber);
+      flex-shrink: 0;
+      padding-top: 4px;
+    }
+    .output-body { display: flex; flex-direction: column; gap: 6px; }
+    .output-title {
+      font-size: clamp(16px, 1.6vw, 26px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      color: #1c1d1d;
+    }
+    .output-desc {
+      font-size: clamp(13px, 1.1vw, 18px);
+      color: #6a6a6a;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+      max-width: 64ch;
+    }
+
+    /* ── ITERATION GRID ──────────────────────────────────── */
+    .iter-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(12px, 1.5vw, 24px);
+      margin-top: clamp(32px, 4vw, 60px);
+    }
+    @media (max-width: 700px) { .iter-grid { grid-template-columns: 1fr 1fr; } }
+    .iter-card {
+      background: #fff;
+      border-radius: clamp(12px, 1.5vw, 22px);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .iter-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .iter-card-caption {
+      padding: clamp(18px, 2.2vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1vw, 14px);
+      flex: 1;
+    }
+    .iter-num {
+      font-size: clamp(10px, 0.75vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.2);
+    }
+    .iter-text {
+      font-size: clamp(14px, 1.25vw, 21px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      line-height: 1.3;
+      color: #1c1d1d;
+    }
+
+    /* ── IMPACT SECTION ──────────────────────────────────── */
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(16px, 2vw, 32px);
+      margin-top: clamp(32px, 4vw, 60px);
+    }
+    @media (max-width: 700px) { .impact-grid { grid-template-columns: 1fr; } }
+    .impact-card {
+      background: #fff;
+      border-radius: clamp(14px, 2vw, 28px);
+      padding: clamp(28px, 3.5vw, 56px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(10px, 1.2vw, 18px);
+    }
+    .impact-number {
+      font-size: clamp(44px, 5.5vw, 96px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: var(--amber);
+    }
+    .impact-label {
+      font-size: clamp(14px, 1.3vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #1c1d1d;
+    }
+    .impact-sub {
+      font-size: clamp(12px, 1.05vw, 17px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+    }
+
+    /* ── DARK SECTION ────────────────────────────────────── */
+    .dark-section {
+      background: #1c1d1d;
+      border-radius: clamp(16px, 3.5vw, 60px);
+      margin: 0 clamp(24px, 4vw, 72px);
+      color: #fff;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr clamp(200px, 34%, 500px);
+      align-items: stretch;
+    }
+    .dark-section-content {
+      padding: clamp(60px, 7vw, 120px) clamp(32px, 6vw, 110px);
+    }
+    .dark-section-image { position: relative; }
+    .dark-section-image img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .dark-section .cs-section-label { color: rgba(255,255,255,0.3); }
+    .dark-section .cs-h2 { color: rgba(255,255,255,0.9); }
+    .dark-section .cs-h2 strong { color: #fff; }
+    .dark-section .cs-body { color: rgba(255,255,255,0.5); }
+
+    /* ── REFLECTION LIST ─────────────────────────────────── */
+    .reflection-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 40px);
+      margin-top: clamp(32px, 4vw, 60px);
+    }
+    .reflection-item {
+      display: flex;
+      gap: clamp(16px, 2vw, 32px);
+      align-items: flex-start;
+    }
+    .reflection-num {
+      font-size: clamp(32px, 4vw, 70px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      color: rgba(255,255,255,0.1);
+      line-height: 1;
+      flex-shrink: 0;
+      min-width: clamp(40px, 5vw, 80px);
+    }
+    .reflection-body { display: flex; flex-direction: column; gap: 8px; padding-top: clamp(4px, 0.5vw, 8px); }
+    .reflection-title {
+      font-size: clamp(16px, 1.6vw, 28px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: rgba(255,255,255,0.85);
+    }
+    .reflection-desc {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: rgba(255,255,255,0.4);
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+      max-width: 55ch;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .cs-footer {
+      background-color: #e9e9e9;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: clamp(8px, 1vw, 16px);
+      border: 2px solid #000;
+      border-radius: 170px;
+      padding: clamp(10px, 1.39vw, 24px) clamp(18px, 2.78vw, 48px);
+      font-size: clamp(14px, 1.5vw, 26px);
+      font-weight: 500;
+      color: #000;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      transition: color 0.45s var(--ease);
+    }
+    .back-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #000;
+      border-radius: inherit;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.5s var(--ease);
+      z-index: -1;
+    }
+    .back-link:hover::before { transform: scaleX(1); }
+    .back-link:hover { color: #fff; }
+    .back-link svg { width: clamp(16px, 2vw, 32px); height: clamp(16px, 2vw, 32px); flex-shrink: 0; }
+    .footer-copy {
+      font-size: clamp(11px, 0.9vw, 14px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      text-align: right;
+    }
+    @media (max-width: 600px) {
+      .cs-footer { flex-direction: column; align-items: flex-start; }
+      .footer-copy { text-align: left; }
+    }
+
+    /* ── SCROLL REVEAL ───────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.85s var(--ease), transform 0.85s var(--ease);
+    }
+    .reveal.revealed { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ── CURSOR ──────────────────────────────────────────── */
+    @media (hover: hover) and (pointer: fine) {
+      * { cursor: none !important; }
+      #cursor-glow {
+        position: fixed; top: 0; left: 0; pointer-events: none;
+        width: 32px; height: 32px; border-radius: 50%;
+        border: 1.5px solid rgba(0,0,0,0.55);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(4px);
+        transform: translate(-50%, -50%);
+        z-index: 9999; opacity: 0;
+        transition: opacity 0.35s ease,
+                    width 0.45s cubic-bezier(0.34,1.56,0.64,1),
+                    height 0.45s cubic-bezier(0.34,1.56,0.64,1),
+                    border-color 0.3s ease,
+                    background 0.3s ease;
+      }
+      #cursor-glow::before {
+        content: ''; position: absolute;
+        top: 50%; left: 50%;
+        width: 4px; height: 4px; border-radius: 50%;
+        background: rgba(0,0,0,0.6);
+        transform: translate(-50%,-50%);
+        transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      }
+      #cursor-glow.hovering {
+        width: 52px; height: 52px;
+        border-color: rgba(0,0,0,0.2);
+      }
+      #cursor-glow.hovering::before {
+        opacity: 0;
+        transform: translate(-50%,-50%) scale(0);
+      }
+    }
+
+    /* ── ANIMATIONS ──────────────────────────────────────── */
+    @keyframes navIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: none; }
+    }
+    @keyframes lineUp {
+      to { transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <nav>
+    <a href="index.html" class="nav-back">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back
+    </a>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-tag">
+      <span class="hero-tag-dot"></span>
+      Product Design · Nov 2020 – Nov 2021
+    </div>
+    <h1>
+      <span class="line-mask"><span class="line-inner black">From paper chaos</span></span>
+      <span class="line-mask"><span class="line-inner black">to contactless</span></span>
+      <span class="line-mask"><span class="line-inner gray">dining.</span></span>
+    </h1>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-value">Co-Founder · Product Managing, Product Designing</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Company</span>
+        <span class="meta-value">Silvi</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Platform</span>
+        <span class="meta-value">iOS · Android · Web</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Timeline</span>
+        <span class="meta-value">1 year</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── COVER ── -->
+  <div class="cover reveal">
+    <img src="Silvi - Case study.png" alt="Silvi — POS and contactless dining web-app">
+  </div>
+
+  <!-- ── TL;DR ── -->
+  <div class="stats-band reveal">
+    <div class="stat-item">
+      <span class="stat-number amber">75%</span>
+      <span class="stat-desc">of merchant orders processed through contactless QR ordering</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">−32%</span>
+      <span class="stat-desc">reduction in serving time — from 34 min average to 23 min</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number amber">+20%</span>
+      <span class="stat-desc">revenue increase for restaurants with a second floor</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number muted">22</span>
+      <span class="stat-desc">restaurant and café owners interviewed in problem exploration</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ── BACKGROUND ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Background</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">A designer who ate at the places he was designing for.</h2>
+    <p class="cs-body reveal reveal-delay-2">
+      As a product designer at Silvi — a company focused on mid-to-low end restaurants and cafés — I spent most of my weeks actually working from those cafés. My job was to design tools for merchants who were struggling with their day-to-day operations, and I couldn't stop noticing the friction everywhere.
+    </p>
+    <p class="cs-body reveal reveal-delay-3">
+      Calling for a waiter. Waiting 34 minutes for food. Watching staff shuffle paper slips between floors. There was a clear gap between what technology could do and what was happening in these kitchens. That gap became the project.
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── PROBLEM EXPLORATION ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Problem Exploration</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">What 22 restaurant owners told us about running their business.</h2>
+    <p class="cs-body reveal reveal-delay-2">We interviewed 22 restaurant and café owners to move past assumptions. The problems that came back were consistent and specific.</p>
+
+    <div class="quotes-grid">
+      <div class="quote-card reveal reveal-delay-1">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">In this pandemic situation, it's a hard time for us to pay employee salaries.</p>
+        <p class="quote-attr">Restaurant owner, Jakarta</p>
+      </div>
+      <div class="quote-card reveal reveal-delay-2">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">Too much paper in the serving process. So hard to track the progress.</p>
+        <p class="quote-attr">Café manager, Bandung</p>
+      </div>
+      <div class="quote-card reveal reveal-delay-1">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">Inputting customer data manually is a big hassle, even though we really need it.</p>
+        <p class="quote-attr">Restaurant owner, Surabaya</p>
+      </div>
+      <div class="quote-card reveal reveal-delay-2">
+        <div class="quote-mark">"</div>
+        <p class="quote-text">We're not getting much traffic anymore due to social distancing regulations.</p>
+        <p class="quote-attr">Café owner, Yogyakarta</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── PROBLEM FRAMING ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Problem Framing</p>
+    <div class="two-col">
+      <div>
+        <h2 class="cs-h2 reveal reveal-delay-1">The serving process is untrackable — and a mess.</h2>
+        <p class="cs-body reveal reveal-delay-2">We ran a design sprint with the product team to map the current experience end to end and identify where things actually broke down. The flow looked normal on paper. The reality was fragmented, manual, and impossible to track at scale.</p>
+      </div>
+      <div>
+        <div class="pain-list">
+          <div class="pain-item reveal reveal-delay-1">
+            <div class="pain-icon">📋</div>
+            <div class="pain-text">
+              <span class="pain-title">Order queue scattered across paper</span>
+              <span class="pain-desc">No single source of truth for what's been ordered, what's being prepared, and what's been served</span>
+            </div>
+          </div>
+          <div class="pain-item reveal reveal-delay-2">
+            <div class="pain-icon">🏠</div>
+            <div class="pain-text">
+              <span class="pain-title">Getting orders to the second floor</span>
+              <span class="pain-desc">Staff had to physically carry paper slips between floors, creating delays and errors</span>
+            </div>
+          </div>
+          <div class="pain-item reveal reveal-delay-3">
+            <div class="pain-icon">⚙️</div>
+            <div class="pain-text">
+              <span class="pain-title">Serving "bureaucracy" is entirely manual</span>
+              <span class="pain-desc">Every status update — prepared, ready, served — required a human in the loop with a physical note</span>
+            </div>
+          </div>
+          <div class="pain-item reveal reveal-delay-4">
+            <div class="pain-icon">💸</div>
+            <div class="pain-text">
+              <span class="pain-title">Menu price updates done by hand</span>
+              <span class="pain-desc">No central system meant price changes happened inconsistently and slowly</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: clamp(40px, 5vw, 80px);">
+      <p class="cs-section-label reveal">So, our goal was to build a feature that could...</p>
+      <div class="goals-list">
+        <div class="goal-item reveal reveal-delay-1">
+          <div class="goal-dot"></div>
+          <span class="goal-text">Reduce order serving time</span>
+        </div>
+        <div class="goal-item reveal reveal-delay-2">
+          <div class="goal-dot"></div>
+          <span class="goal-text">Digitalize the order queue end to end</span>
+        </div>
+        <div class="goal-item reveal reveal-delay-3">
+          <div class="goal-dot"></div>
+          <span class="goal-text">Drive more orders from customers through a digital menu</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── SOLUTION ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Proposed Solution</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">One hypothesis, two interlocking components.</h2>
+    <p class="cs-body reveal reveal-delay-2">The solution was to combine an order monitoring feature for staff with a contactless dining experience for customers — connected by a QR code.</p>
+
+    <div class="solution-proto-stack">
+      <div class="solution-proto merchants reveal reveal-delay-1">
+        <img src="For merchant.png" alt="Order monitoring interface for merchants" draggable="false">
+        <div class="solution-proto-caption">
+          <p class="solution-proto-eyebrow">For Merchants</p>
+          <div class="solution-proto-text">
+            <h3 class="solution-proto-title">Order monitoring, end to end</h3>
+            <p class="solution-proto-body">A dedicated screen in Silvi's POS where staff can see every table's order status in real time — what's been placed, what's being prepared, and what's ready to serve. Paper slips replaced by a live dashboard.</p>
+          </div>
+        </div>
+      </div>
+      <div class="solution-proto customers reveal reveal-delay-2">
+        <img src="For customers.png" alt="Contactless ordering web-app for customers" draggable="false">
+        <div class="solution-proto-caption">
+          <p class="solution-proto-eyebrow">For Customers</p>
+          <div class="solution-proto-text">
+            <h3 class="solution-proto-title">Contactless order, pay &amp; interact</h3>
+            <p class="solution-proto-body">A web-app accessible via QR code at the table. Customers browse the digital menu, place specific requests, and pay directly — without flagging down a waiter. The order lands directly in the kitchen queue.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="cs-body reveal" style="margin-top: clamp(24px, 3vw, 48px);">
+      Hypothesis: digitalising the merchant's serving process and removing paper entirely would result in faster serving times. Enabling customers to order via QR code would increase order frequency because it removes the friction of catching a waiter's attention.
+    </p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── TESTING ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Testing &amp; Prototyping</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">Map, simplify, repeat — with the actual users.</h2>
+    <p class="cs-body reveal reveal-delay-2">We ran a series of user testing sessions with those same 22 business owners and their customers. The approach was tight cycles: build a prototype, test it, collect feedback, iterate. We moved through several rounds before landing on a version we were ready to ship.</p>
+    <p class="cs-body reveal reveal-delay-3">The sessions consistently sharpened the interface. Complexity that looked necessary in the abstract turned out to be friction in practice. Menus that felt complete got pared down. Flows that seemed obvious needed prompting.</p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── WHAT WE FOUND ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">After Launch</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">The adoption data told us where to push harder.</h2>
+    <p class="cs-body reveal reveal-delay-2">Several weeks after launch, Firebase and Google Analytics showed two things: QR code adoption wasn't meeting our target, and merchants weren't completing the transaction after serving orders. We went back to the research.</p>
+
+    <div class="two-col" style="margin-top: clamp(32px, 4vw, 60px);">
+      <div class="solution-card reveal reveal-delay-1">
+        <p class="solution-eyebrow">Finding 01</p>
+        <h3 class="solution-title">Customers weren't aware they could order via QR</h3>
+        <p class="solution-body">The QR code was there, but it wasn't prominent. Without an active prompt — or an attractive physical object to scan — most customers didn't know the option existed.</p>
+      </div>
+      <div class="solution-card reveal reveal-delay-2">
+        <p class="solution-eyebrow">Finding 02</p>
+        <h3 class="solution-title">Merchants weren't fluent with the new system</h3>
+        <p class="solution-body">The interface was functional, but the mental model for completing a transaction — especially confirming order statuses — hadn't fully transferred. Education was as much of the problem as the design.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── ITERATIONS ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Iterations</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">Six specific bets we made to close the gap.</h2>
+
+    <div class="iter-grid">
+      <div class="iter-card reveal reveal-delay-1">
+        <img src="Acrylic.png" alt="Acrylic QR code stands" draggable="false">
+        <div class="iter-card-caption">
+          <span class="iter-num">01</span>
+          <span class="iter-text">Switched from paper stickers to acrylic QR code stands — more durable, more prominent at the table</span>
+        </div>
+      </div>
+      <div class="iter-card reveal reveal-delay-2">
+        <img src="New look.png" alt="Festive standing QR display" draggable="false">
+        <div class="iter-card-caption">
+          <span class="iter-num">02</span>
+          <span class="iter-text">Designed a "festive" standing QR display to make scanning feel inviting rather than functional</span>
+        </div>
+      </div>
+      <div class="iter-card reveal reveal-delay-3">
+        <img src="Points.png" alt="Merchant points programme" draggable="false">
+        <div class="iter-card-caption">
+          <span class="iter-num">03</span>
+          <span class="iter-text">Launched a merchant points programme — 1 contactless order = 1 point — to incentivise adoption</span>
+        </div>
+      </div>
+      <div class="iter-card reveal reveal-delay-1">
+        <img src="Disajikan.png" alt="Simplified order status updates" draggable="false">
+        <div class="iter-card-caption">
+          <span class="iter-num">04</span>
+          <span class="iter-text">Reduced complexity in updating order statuses so merchants could complete transactions with fewer taps</span>
+        </div>
+      </div>
+      <div class="iter-card reveal reveal-delay-2">
+        <img src="Tablet.png" alt="Optimised tablet version" draggable="false">
+        <div class="iter-card-caption">
+          <span class="iter-num">05</span>
+          <span class="iter-text">Optimised the tablet version to use the larger screen space effectively for monitoring</span>
+        </div>
+      </div>
+      <div class="iter-card reveal reveal-delay-3">
+        <img src="Onboarding.png" alt="Simplified onboarding manual" draggable="false">
+        <div class="iter-card-caption">
+          <span class="iter-num">06</span>
+          <span class="iter-text">Created a simpler, visual onboarding manual book that merchants could refer to without calling support</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── OUTPUTS ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Outputs &amp; Iterations</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">Three surfaces. One connected system.</h2>
+
+    <div class="output-list">
+      <div class="output-item reveal reveal-delay-1">
+        <img src="Order activity monitoring - updated.png" alt="Order Activity Monitoring screen" draggable="false">
+        <div class="output-item-caption">
+          <span class="output-num">01</span>
+          <div class="output-body">
+            <span class="output-title">Order Activity Monitoring</span>
+            <p class="output-desc">One dedicated page in Silvi to monitor and interact with your customer's order-in-table status — every table, every order, in real time.</p>
+          </div>
+        </div>
+      </div>
+      <div class="output-item reveal reveal-delay-2">
+        <img src="Back office.png" alt="Merchant's back office dashboard" draggable="false">
+        <div class="output-item-caption">
+          <span class="output-num">02</span>
+          <div class="output-body">
+            <span class="output-title">Merchant's Back Office Dashboard</span>
+            <p class="output-desc">Web-based back office for merchants to monitor business performance, manage price menus, payment methods, promos, customers, and more.</p>
+          </div>
+        </div>
+      </div>
+      <div class="output-item reveal reveal-delay-3">
+        <img src="Contactless order.png" alt="Contactless order, payment and interaction" draggable="false">
+        <div class="output-item-caption">
+          <span class="output-num">03</span>
+          <div class="output-body">
+            <span class="output-title">Contactless Order, Payment &amp; Interaction</span>
+            <p class="output-desc">Web-app for customers to access the digital menu — and not just browse. Order and pay directly from the table, without flagging down a waiter.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ── IMPACT ── -->
+  <section class="cs-section">
+    <p class="cs-section-label reveal">Impact</p>
+    <h2 class="cs-h2 reveal reveal-delay-1">The numbers after a full year of iteration.</h2>
+
+    <div class="impact-grid">
+      <div class="impact-card reveal reveal-delay-1">
+        <span class="impact-number">75%</span>
+        <span class="impact-label">of orders via contactless QR</span>
+        <span class="impact-sub">From near-zero adoption at launch to three quarters of all orders flowing through the digital channel</span>
+      </div>
+      <div class="impact-card reveal reveal-delay-2">
+        <span class="impact-number">−32%</span>
+        <span class="impact-label">serving time reduction</span>
+        <span class="impact-sub">Average serving time dropped from 34 minutes to 23 minutes for food restaurants serving cooked meals</span>
+      </div>
+      <div class="impact-card reveal reveal-delay-3">
+        <span class="impact-number">+20%</span>
+        <span class="impact-label">revenue for multi-floor venues</span>
+        <span class="impact-sub">Restaurants with a second floor saw a meaningful revenue increase once staff no longer had to ferry orders between floors</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── REFLECTION ── -->
+  <div class="dark-section reveal">
+    <div class="dark-section-content">
+      <p class="cs-section-label">Reflection</p>
+      <h2 class="cs-h2" style="margin-bottom: clamp(32px, 4vw, 64px);">What this project taught me about <strong>designing in the field.</strong></h2>
+
+      <div class="reflection-list">
+        <div class="reflection-item">
+          <span class="reflection-num">01</span>
+          <div class="reflection-body">
+            <span class="reflection-title">Adoption is a design problem, not just a marketing one</span>
+            <p class="reflection-desc">The QR ordering feature worked technically. The problem was that customers and merchants didn't know how to use it — or didn't feel invited to. The interface is only part of the experience. Physical artefacts, onboarding, and education are as much in scope for a product designer as the screens.</p>
+          </div>
+        </div>
+        <div class="reflection-item">
+          <span class="reflection-num">02</span>
+          <div class="reflection-body">
+            <span class="reflection-title">Working inside the context is irreplaceable</span>
+            <p class="reflection-desc">Spending time at these cafés — not as a researcher with a notebook, but just working there — surfaced problems that no interview would have surfaced. The 34-minute serving time wasn't a number from a dataset. It was something I experienced myself. That made the goals feel different to design for.</p>
+          </div>
+        </div>
+        <div class="reflection-item">
+          <span class="reflection-num">03</span>
+          <div class="reflection-body">
+            <span class="reflection-title">The iteration cycle is the product</span>
+            <p class="reflection-desc">The feature that shipped in November 2020 was not the feature that was producing 75% contactless orders a year later. The gap between those two states was closed by a consistent cycle: observe the data, talk to merchants, make a specific change, observe again. The design system we built — Incluitive — was the infrastructure that made that cycle sustainable at scale.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="dark-section-image">
+      <img src="Preview reflection.png" alt="Silvi app preview" draggable="false">
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer class="cs-footer">
+    <div>
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to all work
+      </a>
+    </div>
+    <div class="footer-copy">
+      <div>© 2026 Rizha Teuku</div>
+      <div style="margin-top: 4px;">Co-Founder, Silvi</div>
+    </div>
+  </footer>
+
+  <script>
+    // ── CURSOR ──
+    (function () {
+      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      const cur = document.getElementById('cursor-glow');
+      let cx = 0, cy = 0, tx = 0, ty = 0;
+      document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; cur.style.opacity = '1'; });
+      document.addEventListener('mouseleave', () => { cur.style.opacity = '0'; });
+      (function loop() {
+        cx += (tx - cx) * 0.13;
+        cy += (ty - cy) * 0.13;
+        cur.style.left = cx + 'px';
+        cur.style.top = cy + 'px';
+        requestAnimationFrame(loop);
+      })();
+      document.querySelectorAll('a, button').forEach(el => {
+        el.addEventListener('mouseenter', () => cur.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => cur.classList.remove('hovering'));
+      });
+    })();
+
+    // ── SCROLL REVEALS ──
+    (function () {
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); } });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.reveal, .cover').forEach(el => io.observe(el));
+    })();
+  </script>
+</body>
+</html>
