@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rizha Teuku — Resume</title>
+  <meta name="description" content="Resume of Rizha Teuku, Senior Product Designer at Gojek.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --bg: #f0efeb;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: var(--bg);
+      color: #1c1d1d;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── CURSOR ──────────────────────────────────────────── */
+    @media (hover: hover) and (pointer: fine) {
+      body, a, button { cursor: none; }
+      #cursor-glow {
+        position: fixed; top: 0; left: 0;
+        width: 32px; height: 32px; border-radius: 50%;
+        border: 1.5px solid rgba(0,0,0,0.55);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+        pointer-events: none; z-index: 9999; will-change: transform; opacity: 0;
+        transition:
+          opacity 0.35s ease,
+          width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+          height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+          border-radius 0.45s var(--ease);
+      }
+      #cursor-glow::before {
+        content: '';
+        position: absolute; top: 50%; left: 50%;
+        width: 4px; height: 4px; border-radius: 50%;
+        background: rgba(0,0,0,0.6);
+        transform: translate(-50%, -50%);
+        transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      #cursor-glow.active { opacity: 1; }
+      #cursor-glow.hovering {
+        width: 52px; height: 52px;
+        border-color: rgba(0,0,0,0.2);
+        background: rgba(255,255,255,0.12);
+      }
+      #cursor-glow.hovering::before {
+        opacity: 0;
+        transform: translate(-50%,-50%) scale(0);
+      }
+      #cursor-glow.clicking {
+        width: 20px; height: 20px;
+        background: rgba(0,0,0,0.08);
+        border-color: rgba(0,0,0,0.5);
+      }
+      #cursor-glow.clicking::before {
+        transform: translate(-50%,-50%) scale(2);
+        background: rgba(0,0,0,0.7);
+      }
+    }
+    @media not all and (hover: hover) {
+      #cursor-glow { display: none; }
+    }
+
+    /* ── NAV ─────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: clamp(20px, 3.7vw, 64px);
+      left: clamp(24px, 4vw, 72px);
+      transform: translateY(-8px);
+      display: flex;
+      align-items: center;
+      padding: clamp(10px, 1.39vw, 24px) clamp(16px, 1.85vw, 32px);
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 60px;
+      font-size: clamp(13px, 1.2vw, 20px);
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      z-index: 100;
+      opacity: 0;
+      animation: navIn 0.7s var(--ease) 0.1s forwards;
+    }
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(0,0,0,0.5);
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #000; }
+    .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── HERO ────────────────────────────────────────────── */
+    .r-hero {
+      background: #1c1d1d;
+      padding: clamp(120px, 14vw, 220px) clamp(24px, 8vw, 140px) clamp(60px, 7vw, 112px);
+    }
+    .r-hero-label {
+      font-size: clamp(10px, 0.8vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: clamp(20px, 2.5vw, 40px);
+    }
+    .r-hero h1 {
+      font-size: clamp(48px, 7vw, 120px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: #fff;
+      margin-bottom: clamp(20px, 2.5vw, 36px);
+    }
+    .r-hero-sub {
+      font-size: clamp(16px, 1.8vw, 30px);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      line-height: 1.4;
+      color: rgba(255,255,255,0.5);
+      max-width: 52ch;
+      margin-bottom: clamp(32px, 4vw, 60px);
+    }
+    .r-hero-meta {
+      display: flex;
+      gap: clamp(20px, 3vw, 48px);
+      flex-wrap: wrap;
+    }
+    .r-hero-meta a,
+    .r-hero-meta span {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: rgba(255,255,255,0.35);
+      letter-spacing: -0.03em;
+      transition: color 0.2s;
+    }
+    .r-hero-meta a:hover { color: #fff; }
+
+    /* ── SHARED SECTION ──────────────────────────────────── */
+    .r-section {
+      padding: clamp(60px, 7vw, 112px) clamp(24px, 8vw, 140px);
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .r-section-label {
+      font-size: clamp(10px, 0.8vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.3);
+      margin-bottom: clamp(36px, 4.5vw, 72px);
+    }
+
+    /* ── EXPERIENCE ──────────────────────────────────────── */
+    .r-roles { display: flex; flex-direction: column; }
+    .r-role {
+      display: grid;
+      grid-template-columns: clamp(180px, 26%, 320px) 1fr;
+      gap: clamp(24px, 4vw, 72px);
+      padding: clamp(32px, 4vw, 60px) 0;
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .r-role:first-child { border-top: none; padding-top: 0; }
+    .r-role-meta { display: flex; flex-direction: column; gap: 6px; }
+    .r-role-title {
+      font-size: clamp(15px, 1.4vw, 22px);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+      color: #1c1d1d;
+    }
+    .r-role-company {
+      font-size: clamp(14px, 1.2vw, 20px);
+      font-weight: 500;
+      color: rgba(0,0,0,0.5);
+      letter-spacing: -0.03em;
+    }
+    .r-role-period,
+    .r-role-location {
+      font-size: clamp(11px, 0.9vw, 15px);
+      color: rgba(0,0,0,0.3);
+      letter-spacing: -0.02em;
+    }
+    .r-role-period { margin-top: clamp(10px, 1.2vw, 18px); }
+    .r-bullets {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: clamp(10px, 1.2vw, 18px);
+      padding-top: 3px;
+    }
+    .r-bullets li {
+      font-size: clamp(13px, 1.15vw, 19px);
+      color: rgba(0,0,0,0.65);
+      letter-spacing: -0.02em;
+      line-height: 1.55;
+      display: flex;
+      gap: 12px;
+    }
+    .r-bullets li::before {
+      content: '—';
+      color: rgba(0,0,0,0.2);
+      flex-shrink: 0;
+    }
+
+    /* ── EDUCATION + LANGUAGE ────────────────────────────── */
+    .r-edu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(24px, 3vw, 48px);
+    }
+    .r-edu-item { display: flex; flex-direction: column; gap: 5px; }
+    .r-edu-degree {
+      font-size: clamp(16px, 1.5vw, 24px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #1c1d1d;
+    }
+    .r-edu-school {
+      font-size: clamp(13px, 1.1vw, 18px);
+      color: rgba(0,0,0,0.5);
+      letter-spacing: -0.02em;
+    }
+    .r-edu-meta {
+      font-size: clamp(11px, 0.9vw, 15px);
+      color: rgba(0,0,0,0.3);
+      letter-spacing: -0.02em;
+      margin-top: 4px;
+    }
+    .r-lang-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .r-lang {
+      font-size: clamp(14px, 1.2vw, 20px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: rgba(0,0,0,0.6);
+    }
+
+    /* ── SKILLS ──────────────────────────────────────────── */
+    .r-skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: clamp(16px, 2vw, 32px);
+    }
+    @media (max-width: 720px) { .r-skills-grid { grid-template-columns: 1fr; } }
+    .r-skill-card {
+      background: #fff;
+      border-radius: clamp(14px, 1.8vw, 28px);
+      padding: clamp(24px, 3vw, 44px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 2vw, 28px);
+    }
+    .r-skill-heading {
+      font-size: clamp(10px, 0.8vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(0,0,0,0.3);
+    }
+    .r-skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .r-skill-tag {
+      font-size: clamp(12px, 1.05vw, 17px);
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: rgba(0,0,0,0.6);
+      background: #f5f4f1;
+      border-radius: 100px;
+      padding: 5px clamp(12px, 1.2vw, 20px);
+    }
+
+    /* ── DOWNLOAD CTA ────────────────────────────────────── */
+    .r-cta {
+      background: #1c1d1d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: clamp(20px, 2.5vw, 36px);
+      padding: clamp(72px, 9vw, 140px) clamp(24px, 8vw, 140px);
+      text-align: center;
+    }
+    .r-cta-label {
+      font-size: clamp(10px, 0.8vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+    }
+    .r-cta-heading {
+      font-size: clamp(28px, 4vw, 64px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+      color: #fff;
+    }
+    .r-download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: clamp(10px, 1.2vw, 18px);
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 170px;
+      padding: clamp(12px, 1.6vw, 26px) clamp(24px, 3vw, 52px);
+      font-family: 'Work Sans', sans-serif;
+      font-size: clamp(14px, 1.5vw, 26px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #fff;
+      margin-top: clamp(8px, 1vw, 16px);
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      transition: color 0.45s var(--ease), border-color 0.45s var(--ease);
+    }
+    .r-download-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: #fff;
+      border-radius: inherit;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.5s var(--ease);
+      z-index: -1;
+    }
+    .r-download-btn:hover::before { transform: scaleX(1); }
+    .r-download-btn:hover { color: #1c1d1d; border-color: #fff; }
+    .r-download-btn svg { width: clamp(16px, 1.6vw, 24px); height: clamp(16px, 1.6vw, 24px); flex-shrink: 0; }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .r-footer {
+      background-color: #e9e9e9;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: clamp(8px, 1vw, 16px);
+      border: 2px solid #000;
+      border-radius: 170px;
+      padding: clamp(10px, 1.39vw, 24px) clamp(18px, 2.78vw, 48px);
+      font-size: clamp(14px, 1.5vw, 26px);
+      font-weight: 500;
+      color: #000;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      transition: color 0.45s var(--ease);
+    }
+    .back-link::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: #000;
+      border-radius: inherit;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.5s var(--ease);
+      z-index: -1;
+    }
+    .back-link:hover::before { transform: scaleX(1); }
+    .back-link:hover { color: #fff; }
+    .back-link svg { width: clamp(16px, 2vw, 32px); height: clamp(16px, 2vw, 32px); flex-shrink: 0; }
+    .r-footer-copy {
+      font-size: clamp(11px, 0.9vw, 14px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      text-align: right;
+    }
+    @media (max-width: 600px) {
+      .r-footer { flex-direction: column; align-items: flex-start; }
+      .r-footer-copy { text-align: left; }
+      .r-role { grid-template-columns: 1fr; }
+      .r-edu-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── REVEAL ──────────────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+    .reveal.revealed { opacity: 1; transform: none; }
+    .reveal-delay-1 { transition-delay: 0.08s; }
+    .reveal-delay-2 { transition-delay: 0.16s; }
+    .reveal-delay-3 { transition-delay: 0.24s; }
+
+    /* ── KEYFRAMES ───────────────────────────────────────── */
+    @keyframes navIn { to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <nav>
+    <a href="index.html" class="nav-back">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <div class="r-hero">
+    <p class="r-hero-label">Resume</p>
+    <h1>Rizha Teuku</h1>
+    <p class="r-hero-sub">Designer, then founder, then designer again. 8 years of crafting products that move metrics &amp; people alike.</p>
+    <div class="r-hero-meta">
+      <span>Jakarta, Indonesia</span>
+      <a href="mailto:rizhateuku@gmail.com">rizhateuku@gmail.com</a>
+      <a href="https://rizhateuku.com">rizhateuku.com</a>
+    </div>
+  </div>
+
+  <!-- EXPERIENCE -->
+  <section class="r-section">
+    <p class="r-section-label">Experience</p>
+    <div class="r-roles">
+
+      <div class="r-role reveal">
+        <div class="r-role-meta">
+          <div class="r-role-title">Senior Product Designer</div>
+          <div class="r-role-company">Gojek</div>
+          <div class="r-role-period">Jun 2022 – Present</div>
+          <div class="r-role-location">Jakarta, Indonesia</div>
+        </div>
+        <ul class="r-bullets">
+          <li>Domain expert across GoFood's core consumer surfaces — booking (home &amp; checkout), post-booking (active order tracking), and fulfillment.</li>
+          <li>Drove ~$24.57M in revenue designing Express and Flash (15-min delivery) from concept to scale — Flash now at 2.7M completed orders with sustained 10% MoM growth.</li>
+          <li>Shipped Express Mode M3, a smart-default personalization system that lifted adoption +17.32% with no drop in checkout conversion — generating ~$13.5M over 12 months across ~200K daily checkouts.</li>
+          <li>Led the Checkout Revamp end-to-end, unifying four product streams under a single information architecture and shipping an upfront promo bar that closed a 40% non-redemption gap.</li>
+          <li>Designed GoFood's gifting experience — driving +68% YoY checkout contribution, +47% YoY MTU contribution, and +29% YoY feature adoption at checkout.</li>
+          <li>Pioneered AI-assisted design workflows by co-building a Gemini-powered image generation tool for cuisine imagery, then driving adoption across multiple product teams.</li>
+          <li>Authored GoFood's Quick Delivery Product Principles and led cross-functional workshops that shaped product direction beyond design org scope.</li>
+        </ul>
+      </div>
+
+      <div class="r-role reveal">
+        <div class="r-role-meta">
+          <div class="r-role-title">Chief Product Officer, Co-founder</div>
+          <div class="r-role-company">Flick</div>
+          <div class="r-role-period">Aug 2018 – Apr 2022</div>
+          <div class="r-role-location">Jakarta, Indonesia</div>
+        </div>
+        <ul class="r-bullets">
+          <li>Pre-seed startup focused on hyperautomation for restaurant business processes — scaled to 700+ merchants.</li>
+          <li>Defined and developed the brand, product identity, and company vision.</li>
+          <li>Set up OKR system, developed the design system, and designed the product's pixel-perfect visual and experience from scratch.</li>
+          <li>Scaled the product team from 1 to 5 people.</li>
+          <li>Led a cross-functional growth team running 5+ initiatives per 2 weeks — boosted contactless order transactions by 43%.</li>
+          <li>Acquired 700+ merchants with 8.0 NPS Score as of December 2021.</li>
+        </ul>
+      </div>
+
+      <div class="r-role reveal">
+        <div class="r-role-meta">
+          <div class="r-role-title">Design Principal</div>
+          <div class="r-role-company">Smesta Creative Lab</div>
+          <div class="r-role-period">Mar 2021 – Present</div>
+          <div class="r-role-location">Jakarta, Indonesia</div>
+        </div>
+        <ul class="r-bullets">
+          <li>Creative design agency helping people and businesses deliver clear value through design — brand building, UI/UX, and social media strategy.</li>
+          <li>Directed the project team's creative &amp; design process to solve clients' problems.</li>
+          <li>Handled 3–4 clients per month.</li>
+          <li>Won 2 out of 4 big project tenders through story-telling pitch (BJB Precious, Trisakti University).</li>
+        </ul>
+      </div>
+
+      <div class="r-role reveal">
+        <div class="r-role-meta">
+          <div class="r-role-title">Freelance UI/UX Designer</div>
+          <div class="r-role-company">Zhoonagy Design</div>
+          <div class="r-role-period">Mar 2016 – Mar 2021</div>
+          <div class="r-role-location">Jakarta, Indonesia</div>
+        </div>
+        <ul class="r-bullets">
+          <li>Handled brand building to UI/UX designing across institutions, companies, and tech startups (10+ projects).</li>
+          <li>Brand consultation and creation for institutions and companies.</li>
+          <li>Produced and directed award-winning short films (FLS2N 2016, Moonzher Cup 2017).</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EDUCATION & LANGUAGE -->
+  <section class="r-section">
+    <p class="r-section-label">Education &amp; Language</p>
+    <div class="r-edu-grid">
+      <div class="r-edu-item reveal">
+        <div class="r-edu-degree">Bachelor's Degree, Social Science</div>
+        <div class="r-edu-school">Universitas Indonesia</div>
+        <div class="r-edu-meta">2022 · Depok, Indonesia</div>
+      </div>
+      <div class="r-edu-item reveal reveal-delay-1">
+        <div class="r-section-label" style="margin-bottom: clamp(12px, 1.5vw, 20px);">Languages</div>
+        <div class="r-lang-list">
+          <span class="r-lang">Bahasa Indonesia</span>
+          <span class="r-lang">English</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section class="r-section">
+    <p class="r-section-label">Skills &amp; Tools</p>
+    <div class="r-skills-grid">
+
+      <div class="r-skill-card reveal">
+        <p class="r-skill-heading">Design</p>
+        <div class="r-skill-tags">
+          <span class="r-skill-tag">UX Strategy</span>
+          <span class="r-skill-tag">User Flows</span>
+          <span class="r-skill-tag">Experience Mapping</span>
+          <span class="r-skill-tag">Wireframes</span>
+          <span class="r-skill-tag">Prototypes</span>
+          <span class="r-skill-tag">Mockups</span>
+          <span class="r-skill-tag">Motion Design</span>
+          <span class="r-skill-tag">Design Systems</span>
+          <span class="r-skill-tag">Branding</span>
+          <span class="r-skill-tag">Figma</span>
+          <span class="r-skill-tag">Adobe XD</span>
+          <span class="r-skill-tag">Sketch</span>
+          <span class="r-skill-tag">ProtoPie</span>
+          <span class="r-skill-tag">Photoshop</span>
+          <span class="r-skill-tag">Illustrator</span>
+          <span class="r-skill-tag">After Effects</span>
+        </div>
+      </div>
+
+      <div class="r-skill-card reveal reveal-delay-1">
+        <p class="r-skill-heading">Research &amp; Management</p>
+        <div class="r-skill-tags">
+          <span class="r-skill-tag">User Interviews</span>
+          <span class="r-skill-tag">Usability Testing</span>
+          <span class="r-skill-tag">Persona Hypothesis</span>
+          <span class="r-skill-tag">Competitor Analysis</span>
+          <span class="r-skill-tag">Tree Testing</span>
+          <span class="r-skill-tag">A/B Testing</span>
+          <span class="r-skill-tag">Agile</span>
+          <span class="r-skill-tag">SQL</span>
+          <span class="r-skill-tag">Hotjar</span>
+          <span class="r-skill-tag">Google Analytics</span>
+          <span class="r-skill-tag">Mixpanel</span>
+          <span class="r-skill-tag">Firebase</span>
+          <span class="r-skill-tag">Tableau</span>
+        </div>
+      </div>
+
+      <div class="r-skill-card reveal reveal-delay-2">
+        <p class="r-skill-heading">Product &amp; Project</p>
+        <div class="r-skill-tags">
+          <span class="r-skill-tag">Miro</span>
+          <span class="r-skill-tag">Optimal Workshop</span>
+          <span class="r-skill-tag">Lookback</span>
+          <span class="r-skill-tag">Jira</span>
+          <span class="r-skill-tag">Notion</span>
+          <span class="r-skill-tag">Lark</span>
+          <span class="r-skill-tag">Trello</span>
+          <span class="r-skill-tag">Smartsheet</span>
+          <span class="r-skill-tag">ClickUp</span>
+          <span class="r-skill-tag">Slack</span>
+          <span class="r-skill-tag">GitHub</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DOWNLOAD CTA -->
+  <div class="r-cta">
+    <p class="r-cta-label">Want the full version?</p>
+    <h2 class="r-cta-heading">Download the PDF resume.</h2>
+    <a href="Rizha Teuku's Resume.pdf" download class="r-download-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+      Download Resume
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="r-footer">
+    <div>
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back to all work
+      </a>
+    </div>
+    <div class="r-footer-copy">
+      <div>© 2026 Rizha Teuku</div>
+      <div style="margin-top:4px;">Senior Product Designer, Gojek</div>
+    </div>
+  </footer>
+
+  <script>
+    // ── CURSOR ──
+    (function () {
+      if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      const cur = document.getElementById('cursor-glow');
+      let mx = 0, my = 0, cx = -60, cy = -60;
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.classList.add('active'); }, { passive: true });
+      document.addEventListener('mouseleave', () => cur.classList.remove('active'));
+      document.addEventListener('mouseenter', () => cur.classList.add('active'));
+      document.addEventListener('mousedown', () => cur.classList.add('clicking'));
+      document.addEventListener('mouseup', () => cur.classList.remove('clicking'));
+      document.querySelectorAll('a, button').forEach(el => {
+        el.addEventListener('mouseenter', () => cur.classList.add('hovering'));
+        el.addEventListener('mouseleave', () => cur.classList.remove('hovering'));
+      });
+      (function tick() {
+        cx += (mx - cx) * 0.13;
+        cy += (my - cy) * 0.13;
+        cur.style.left = cx + 'px';
+        cur.style.top  = cy + 'px';
+        cur.style.transform = 'translate(-50%,-50%)';
+        requestAnimationFrame(tick);
+      })();
+    })();
+
+    // ── SCROLL REVEAL ──
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); } });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+</body>
+</html>
