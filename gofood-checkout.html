@@ -283,18 +283,17 @@
     .funnel-bar-fill.revealed-bar { /* set by JS */ }
 
     .funnel-insight {
-      margin-top: clamp(20px, 2.5vw, 40px);
-      padding: clamp(16px, 2vw, 32px);
-      background: var(--red-dim);
-      border-radius: clamp(12px, 1.5vw, 24px);
-      border-left: 3px solid var(--red);
+      margin-top: clamp(32px, 4vw, 64px);
+      padding-top: clamp(20px, 2.5vw, 40px);
+      border-top: 1px solid rgba(0, 0, 0, 0.15);
     }
     .funnel-insight p {
-      font-size: clamp(14px, 1.3vw, 22px);
-      font-weight: 500;
-      letter-spacing: -0.03em;
-      color: var(--red);
-      line-height: 1.4;
+      font-size: clamp(18px, 1.85vw, 32px);
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: -0.04em;
+      color: #1c1d1d;
+      line-height: 1.45;
     }
 
     /* ── DROP-OFF BARS ───────────────────────────────────── */
@@ -1046,7 +1045,7 @@
         <h2 class="cs-h2">A funnel that <strong>fell off a cliff.</strong></h2>
         <p class="cs-body">GoFood's ordering funnel had three steps. The first two held up fine. The last one didn't. Almost half the users who made it to checkout — people who had already browsed, chosen a restaurant, built a cart — never placed an order.</p>
         <p class="cs-body" style="margin-top: 16px;">This isn't a friction problem. It's a trust problem that only surfaces after the user has already invested.</p>
-        <div class="funnel-insight" style="margin-top: clamp(24px, 3vw, 48px);">
+        <div class="funnel-insight">
           <p>For years, checkout was treated as a confirmation screen. We started treating it as a conversion screen.</p>
         </div>
       </div>
