@@ -497,7 +497,7 @@
       user-select: none;
       -webkit-user-select: none;
       touch-action: pan-y;
-      cursor: ew-resize;
+      cursor: none;
       --pos: 50%;
     }
     .compare-slider img {
@@ -919,6 +919,15 @@
       #cursor-glow.hovering::before {
         opacity: 0;
         transform: translate(-50%, -50%) scale(0);
+      }
+      #cursor-glow.clicking {
+        width: 20px; height: 20px;
+        background: rgba(0,0,0,0.08);
+        border-color: rgba(0,0,0,0.5);
+      }
+      #cursor-glow.clicking::before {
+        transform: translate(-50%,-50%) scale(2);
+        background: rgba(0,0,0,0.7);
       }
     }
 
@@ -1587,6 +1596,8 @@
       let mx = 0, my = 0, cx = -60, cy = -60;
       document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.classList.add('active'); }, { passive: true });
       document.addEventListener('mouseleave', () => cur.classList.remove('active'));
+      document.addEventListener('mousedown', () => cur.classList.add('clicking'));
+      document.addEventListener('mouseup', () => cur.classList.remove('clicking'));
       document.addEventListener('mouseenter', () => cur.classList.add('active'));
       document.querySelectorAll('a, button').forEach(el => {
         el.addEventListener('mouseenter', () => cur.classList.add('hovering'));

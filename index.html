@@ -477,6 +477,15 @@
         opacity: 0;
         transform: translate(-50%, -50%) scale(0);
       }
+      #cursor-glow.clicking {
+        width: 20px; height: 20px;
+        background: rgba(0,0,0,0.08);
+        border-color: rgba(0,0,0,0.5);
+      }
+      #cursor-glow.clicking::before {
+        transform: translate(-50%,-50%) scale(2);
+        background: rgba(0,0,0,0.7);
+      }
 
       /* text cursor — warps into plain | line */
       #cursor-glow.text-cursor {
@@ -695,6 +704,8 @@
 
       document.addEventListener('mouseleave', () => cur.classList.remove('active'));
       document.addEventListener('mouseenter', () => cur.classList.add('active'));
+      document.addEventListener('mousedown', () => cur.classList.add('clicking'));
+      document.addEventListener('mouseup', () => cur.classList.remove('clicking'));
 
       // Expand on interactive elements
       document.querySelectorAll('a, button').forEach(el => {

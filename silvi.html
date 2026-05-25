@@ -702,6 +702,15 @@
         opacity: 0;
         transform: translate(-50%,-50%) scale(0);
       }
+      #cursor-glow.clicking {
+        width: 20px; height: 20px;
+        background: rgba(0,0,0,0.08);
+        border-color: rgba(0,0,0,0.5);
+      }
+      #cursor-glow.clicking::before {
+        transform: translate(-50%,-50%) scale(2);
+        background: rgba(0,0,0,0.7);
+      }
     }
 
     /* ── ANIMATIONS ──────────────────────────────────────── */
@@ -1141,6 +1150,8 @@
       let cx = 0, cy = 0, tx = 0, ty = 0;
       document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; cur.style.opacity = '1'; });
       document.addEventListener('mouseleave', () => { cur.style.opacity = '0'; });
+      document.addEventListener('mousedown', () => cur.classList.add('clicking'));
+      document.addEventListener('mouseup', () => cur.classList.remove('clicking'));
       (function loop() {
         cx += (tx - cx) * 0.13;
         cy += (ty - cy) * 0.13;
