@@ -114,6 +114,17 @@
       transform: translateY(110%);
       animation: lineUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.52s forwards;
     }
+    .hero-name {
+      font-size: clamp(32px, 4.98vw, 86px);
+      font-weight: 400;
+      line-height: 1.12;
+      letter-spacing: -0.04em;
+      color: #000;
+      margin-bottom: clamp(16px, 1.85vw, 32px);
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.35s forwards;
+    }
     .hero-caption {
       font-size: clamp(15px, 1.39vw, 24px);
       color: #454545;
@@ -524,6 +535,7 @@
   <!-- HERO -->
   <section class="hero">
     <img src="rizha photo.png" alt="Rizha Teuku" class="hero-photo">
+    <h1 class="hero-name">I'm Rizha,</h1>
     <p class="hero-caption">
       I'm Rizha, a product designer who increasingly looks like a builder. Day job: GoFood at Gojek, four years in, designing for 20M+ daily users across Southeast Asia. Night job: vibe-coding small apps, wiring n8n automations, and feeding ComfyUI graphs until something interesting comes out the other end. I got here through a non-linear seven-year route — motion graphics in high school, freelance UI through college, a pre-seed fintech that didn't survive 2020, a brand agency that did. Each stop taught me to ship with whatever I had in front of me, which turns out to be useful training for the AI era, where the gap between "I have an idea" and "I have a working thing" keeps shrinking. I'm not trying to become an engineer. I'm trying to stay close enough to the material that I never have to wait for permission to make something real.
     </p>
