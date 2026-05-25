@@ -85,31 +85,27 @@
     nav {
       position: fixed;
       top: clamp(20px, 3.7vw, 64px);
-      left: clamp(24px, 4vw, 72px);
-      transform: translateY(-8px);
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
       display: flex;
       align-items: center;
+      gap: clamp(20px, 2.78vw, 48px);
       padding: clamp(10px, 1.39vw, 24px) clamp(16px, 1.85vw, 32px);
       background: rgba(255,255,255,0.4);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-radius: 60px;
-      font-size: clamp(13px, 1.2vw, 20px);
+      font-size: clamp(13px, 1.39vw, 24px);
       letter-spacing: -0.04em;
       white-space: nowrap;
       z-index: 100;
       opacity: 0;
       animation: navIn 0.7s var(--ease) 0.1s forwards;
     }
-    .nav-back {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: rgba(0,0,0,0.5);
-      transition: color 0.2s;
-    }
-    .nav-back:hover { color: #000; }
-    .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .nav-logo { color: #000; }
+    .nav-link { color: rgba(0,0,0,0.3); transition: color 0.2s; }
+    .nav-link:hover { color: #000; }
+    .nav-link.active { color: #000; }
 
     /* ── HERO ────────────────────────────────────────────── */
     .r-hero {
@@ -417,7 +413,7 @@
     .reveal-delay-3 { transition-delay: 0.24s; }
 
     /* ── KEYFRAMES ───────────────────────────────────────── */
-    @keyframes navIn { to { opacity: 1; transform: translateY(0); } }
+    @keyframes navIn { to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   </style>
 </head>
 <body>
@@ -425,10 +421,10 @@
   <div id="cursor-glow" aria-hidden="true"></div>
 
   <nav>
-    <a href="index.html" class="nav-back">
-      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Back
-    </a>
+    <a href="/" class="nav-logo">RT</a>
+    <a href="/#work" class="nav-link">Work</a>
+    <a href="about.html" class="nav-link">About</a>
+    <a href="resume.html" class="nav-link active">Resume</a>
   </nav>
 
   <!-- HERO -->
