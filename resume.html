@@ -288,12 +288,13 @@
     .r-cta {
       background: #1c1d1d;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: clamp(20px, 2.5vw, 36px);
-      padding: clamp(72px, 9vw, 140px) clamp(24px, 8vw, 140px);
-      text-align: center;
+      justify-content: space-between;
+      gap: clamp(32px, 5vw, 80px);
+      padding: clamp(60px, 7vw, 112px) clamp(24px, 8vw, 140px);
     }
+    .r-cta-text { display: flex; flex-direction: column; gap: clamp(10px, 1.2vw, 18px); }
+    @media (max-width: 640px) { .r-cta { flex-direction: column; align-items: flex-start; } }
     .r-cta-label {
       font-size: clamp(10px, 0.8vw, 13px);
       font-weight: 600;
@@ -591,8 +592,10 @@
 
   <!-- DOWNLOAD CTA -->
   <div class="r-cta">
-    <p class="r-cta-label">Want the full version?</p>
-    <h2 class="r-cta-heading">Download the PDF resume.</h2>
+    <div class="r-cta-text">
+      <p class="r-cta-label">Want the full version?</p>
+      <h2 class="r-cta-heading">Download the PDF resume.</h2>
+    </div>
     <a href="Rizha Teuku's Resume.pdf" download class="r-download-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 5v14M5 12l7 7 7-7"/>
