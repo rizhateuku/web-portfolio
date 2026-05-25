@@ -711,6 +711,16 @@
         transform: translate(-50%,-50%) scale(2);
         background: rgba(0,0,0,0.7);
       }
+      #cursor-glow.text-cursor {
+        width: 2px;
+        height: var(--text-h, 48px);
+        border-radius: 2px;
+        border-color: #007AFF;
+        background: #007AFF;
+        backdrop-filter: blur(0px);
+        -webkit-backdrop-filter: blur(0px);
+      }
+      #cursor-glow.text-cursor::before { opacity: 0; }
     }
 
     /* ── ANIMATIONS ──────────────────────────────────────── */
@@ -1162,6 +1172,16 @@
       document.querySelectorAll('a, button').forEach(el => {
         el.addEventListener('mouseenter', () => cur.classList.add('hovering'));
         el.addEventListener('mouseleave', () => cur.classList.remove('hovering'));
+      });
+      document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption, dt, dd').forEach(el => {
+        if (el.closest('a, button')) return;
+        el.addEventListener('mouseenter', () => {
+          const fs = parseFloat(getComputedStyle(el).fontSize);
+          cur.style.setProperty('--text-h', fs + 'px');
+          cur.classList.remove('hovering');
+          cur.classList.add('text-cursor');
+        });
+        el.addEventListener('mouseleave', () => cur.classList.remove('text-cursor'));
       });
     })();
 

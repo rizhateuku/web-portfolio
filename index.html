@@ -713,9 +713,11 @@
         el.addEventListener('mouseleave', () => cur.classList.remove('hovering'));
       });
 
-      // Warp to iOS I-beam over hero text, sized to match the text
-      document.querySelectorAll('.hero h1, .hero-caption').forEach(el => {
+      // Warp to I-beam over all readable text
+      document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption, dt, dd').forEach(el => {
+        if (el.closest('a, button')) return;
         el.addEventListener('mouseenter', () => {
+          if (figmaCur.classList.contains('active')) return;
           const fs = parseFloat(getComputedStyle(el).fontSize);
           cur.style.setProperty('--text-h', fs + 'px');
           cur.classList.remove('hovering');
