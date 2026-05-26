@@ -825,12 +825,6 @@
       document.addEventListener('mousedown', () => cur.classList.add('clicking'));
       document.addEventListener('mouseup',   () => cur.classList.remove('clicking'));
 
-      document.querySelectorAll('a, button').forEach(el => {
-        if (el.hasAttribute('data-magnetic')) return;
-        el.addEventListener('mouseenter', () => cur.classList.add('hovering'));
-        el.addEventListener('mouseleave', () => cur.classList.remove('hovering'));
-      });
-
       document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, li, blockquote, figcaption, dt, dd').forEach(el => {
         if (el.closest('a, button')) return;
         el.addEventListener('mouseenter', () => {
@@ -842,12 +836,13 @@
         el.addEventListener('mouseleave', () => cur.classList.remove('text-cursor'));
       });
 
-      // Magnetic cursor warp — element shifts toward cursor, cursor wraps the element
+      // Magnetic warp for all clickables; large card-like elements fall back to expand-only
       let magEl = null, magTX = 0, magTY = 0;
-      document.querySelectorAll('[data-magnetic]').forEach(el => {
+      document.querySelectorAll('a, button').forEach(el => {
         el.addEventListener('mouseenter', () => {
-          magEl = el;
           const r = el.getBoundingClientRect();
+          if (r.width > 280 || r.height > 100) { cur.classList.add('hovering'); return; }
+          magEl = el;
           cur.style.setProperty('--mag-w', (r.width  + 20) + 'px');
           cur.style.setProperty('--mag-h', (r.height + 20) + 'px');
           magTX = r.left + r.width  / 2;
@@ -857,7 +852,7 @@
           el.style.transition = 'none';
         });
         el.addEventListener('mousemove', e => {
-          if (!magEl) return;
+          if (magEl !== el) return;
           const r  = el.getBoundingClientRect();
           const ex = r.left + r.width  / 2;
           const ey = r.top  + r.height / 2;
@@ -868,10 +863,14 @@
           magTY = ey + dy * 0.10;
         });
         el.addEventListener('mouseleave', () => {
-          magEl = null;
-          el.style.transition = 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)';
-          el.style.transform  = '';
-          cur.classList.remove('mag-warp');
+          if (magEl === el) {
+            magEl = null;
+            el.style.transition = 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            el.style.transform  = '';
+            cur.classList.remove('mag-warp');
+          } else {
+            cur.classList.remove('hovering');
+          }
         });
       });
 
