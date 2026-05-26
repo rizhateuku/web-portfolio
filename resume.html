@@ -368,55 +368,93 @@
     .r-download-btn svg { width: clamp(16px, 1.6vw, 24px); height: clamp(16px, 1.6vw, 24px); flex-shrink: 0; }
 
     /* ── FOOTER ──────────────────────────────────────────── */
-    .r-footer {
+    footer {
       background-color: #e9e9e9;
       background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
       background-size: 24px 24px;
-      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      padding: clamp(60px, 5.79vw, 100px) clamp(24px, 5.9vw, 102px) clamp(60px, 6.94vw, 120px);
+    }
+    .footer-top {
       display: flex;
-      align-items: flex-end;
+      align-items: flex-start;
       justify-content: space-between;
-      gap: 40px;
+      padding-bottom: clamp(32px, 3.7vw, 64px);
+      gap: 24px;
     }
-    .back-link {
-      display: inline-flex;
+    .available-tag {
+      display: flex;
       align-items: center;
-      gap: clamp(8px, 1vw, 16px);
-      border: 2px solid #000;
-      border-radius: 170px;
-      padding: clamp(10px, 1.39vw, 24px) clamp(18px, 2.78vw, 48px);
-      font-size: clamp(14px, 1.5vw, 26px);
-      font-weight: 500;
-      color: #000;
-      letter-spacing: -0.04em;
-      white-space: nowrap;
-      position: relative;
-      overflow: hidden;
-      isolation: isolate;
-      transition: color 0.45s var(--ease);
+      gap: clamp(8px, 0.69vw, 12px);
+      margin-top: clamp(16px, 1.85vw, 32px);
     }
-    .back-link::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: #000;
-      border-radius: inherit;
-      transform: scaleX(0);
-      transform-origin: left center;
-      transition: transform 0.5s var(--ease);
-      z-index: -1;
+    .available-dot {
+      width: clamp(8px, 0.69vw, 12px);
+      height: clamp(8px, 0.69vw, 12px);
+      border-radius: 50%;
+      background: #22c55e;
+      flex-shrink: 0;
+      animation: dotPulse 2.4s ease-in-out 2s infinite;
     }
-    .back-link:hover::before { transform: scaleX(1); }
-    .back-link:hover { color: #fff; }
-    .back-link svg { width: clamp(16px, 2vw, 32px); height: clamp(16px, 2vw, 32px); flex-shrink: 0; }
-    .r-footer-copy {
-      font-size: clamp(11px, 0.9vw, 14px);
-      color: #9a9a9a;
+    .available-text {
+      font-size: clamp(13px, 1.39vw, 24px);
+      color: #454545;
       letter-spacing: -0.02em;
-      text-align: right;
     }
+    .connect-col {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(12px, 1.39vw, 24px);
+      padding-top: clamp(4px, 0.46vw, 8px);
+      text-align: right;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .connect-col.visible { opacity: 1; transform: translateY(0); }
+    .connect-label {
+      font-size: clamp(10px, 0.81vw, 14px);
+      font-weight: 600;
+      color: #8f8f8f;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .connect-links {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 0.69vw, 12px);
+    }
+    .connect-links a {
+      font-size: clamp(14px, 1.39vw, 24px);
+      font-weight: 500;
+      color: #1c1d1d;
+      letter-spacing: -0.02em;
+      transition: opacity 0.2s;
+    }
+    .connect-links a:hover { opacity: 0.4; }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: clamp(20px, 2.31vw, 40px);
+      border-top: 1px solid #d9d9d9;
+      font-size: clamp(11px, 0.93vw, 16px);
+      color: #8f8f8f;
+    }
+    .footer-right { display: flex; gap: clamp(12px, 1.39vw, 24px); }
+    .lets-collab {
+      font-size: clamp(48px, 10.42vw, 180px);
+      font-weight: 600;
+      color: #1c1d1d;
+      letter-spacing: -0.06em;
+      line-height: 1;
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .lets-collab.visible { opacity: 1; transform: translateY(0); }
+    @media (max-width: 768px) { .footer-top { flex-direction: column; gap: 40px; } .connect-col { text-align: left; } }
+    @media (max-width: 480px) { .footer-bottom { flex-direction: column; gap: 12px; text-align: center; } .footer-right { flex-direction: column; align-items: center; gap: 4px; } }
     @media (max-width: 600px) {
-      .r-footer { flex-direction: column; align-items: flex-start; }
-      .r-footer-copy { text-align: left; }
       .r-role { grid-template-columns: 1fr; }
       .r-edu-grid { grid-template-columns: 1fr; }
     }
@@ -434,6 +472,10 @@
 
     /* ── KEYFRAMES ───────────────────────────────────────── */
     @keyframes navIn { to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    @keyframes dotPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+      50%       { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    }
   </style>
 </head>
 <body>
@@ -630,18 +672,30 @@
   </div>
 
   <!-- FOOTER -->
-  <footer class="r-footer">
-    <div>
-      <a href="index.html" class="back-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-          <path d="M19 12H5M12 5l-7 7 7 7"/>
-        </svg>
-        Back to all work
-      </a>
+  <footer>
+    <div class="footer-top">
+      <div class="identity">
+        <p class="lets-collab">Let's collab!</p>
+        <div class="available-tag">
+          <div class="available-dot"></div>
+          <span class="available-text">Available for work</span>
+        </div>
+      </div>
+      <div class="connect-col">
+        <p class="connect-label">Connect</p>
+        <div class="connect-links">
+          <a href="https://linkedin.com/in/rizha" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://dribbble.com/rizha" target="_blank" rel="noopener">Dribbble</a>
+          <a href="https://twitter.com/rizha" target="_blank" rel="noopener">Twitter/X</a>
+        </div>
+      </div>
     </div>
-    <div class="r-footer-copy">
-      <div>© 2026 Rizha Teuku</div>
-      <div style="margin-top:4px;">Senior Product Designer, Gojek</div>
+    <div class="footer-bottom">
+      <span>© 2026 Rizha</span>
+      <div class="footer-right">
+        <span>Jakarta, Indonesia</span>
+        <span>Built hand-crafted</span>
+      </div>
     </div>
   </footer>
 
@@ -685,6 +739,18 @@
       entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); } });
     }, { threshold: 0.08 });
     document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+    const revealOnScroll = (el, delay = 0) => {
+      if (!el) return;
+      new IntersectionObserver((entries, obs) => {
+        if (!entries[0].isIntersecting) return;
+        el.style.transitionDelay = delay + 'ms';
+        el.classList.add('visible');
+        obs.disconnect();
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }).observe(el);
+    };
+    revealOnScroll(document.querySelector('.lets-collab'));
+    revealOnScroll(document.querySelector('.connect-col'), 150);
   </script>
 </body>
 </html>

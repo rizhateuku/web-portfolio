@@ -79,17 +79,37 @@
       padding: clamp(120px, 13.89vw, 240px) clamp(24px, 15.74vw, 272px) clamp(60px, 5.56vw, 96px);
     }
     .hero-photo {
-      width: clamp(120px, 14vw, 220px);
+      width: clamp(131px, 12.24vw, 206px);
       height: auto;
-      border-radius: clamp(20px, 2.8vw, 44px);
-      margin-bottom: clamp(28px, 3.5vw, 56px);
+      border-radius: clamp(8px, 0.7vw, 12px);
+      margin-bottom: clamp(24px, 2.8vw, 48px);
       display: block;
       opacity: 0;
       transform: translateY(16px);
       animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
     }
+    .greeting-wrap {
+      overflow: hidden;
+      height: clamp(20px, 1.6vw, 28px);
+      margin-bottom: clamp(6px, 0.7vw, 12px);
+      opacity: 0;
+      animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+    }
+    .greeting {
+      display: block;
+      font-size: clamp(12px, 1vw, 17px);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .greeting.visible { opacity: 1; transform: translateY(0); }
+    .greeting.leaving { opacity: 0; transform: translateY(-10px); }
+
     .hero h1 {
-      font-size: clamp(32px, 4.98vw, 86px);
+      font-size: clamp(22px, 3.2vw, 54px);
       font-weight: 400;
       line-height: 1.12;
       letter-spacing: -0.04em;
@@ -500,7 +520,7 @@
       .footer-right { flex-direction: column; align-items: center; gap: 4px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      nav, .hero-photo, .hero h1 .line-inner, .hero-caption,
+      nav, .hero-photo, .greeting-wrap, .hero h1 .line-inner, .hero-caption,
       .timeline-entry, .talk-entry, .lets-collab, .connect-col {
         animation: none !important;
         transition: none !important;
@@ -524,8 +544,14 @@
   <!-- HERO -->
   <section class="hero">
     <img src="rizha photo.png" alt="Rizha Teuku" class="hero-photo">
+    <div class="greeting-wrap">
+      <span class="greeting" id="hero-greeting">Hello</span>
+    </div>
+    <h1>
+      <span class="line-mask"><span class="line-inner black">I'm Rizha,</span></span>
+    </h1>
     <p class="hero-caption">
-      <span style="color: #000;">I'm Rizha,</span> a product designer who increasingly looks like a builder. Day job: GoFood at Gojek, four years in, designing for 20M+ daily users across Southeast Asia. Night job: vibe-coding small apps, wiring n8n automations, and feeding ComfyUI graphs until something interesting comes out the other end. I got here through a non-linear seven-year route — motion graphics in high school, freelance UI through college, a pre-seed fintech that didn't survive 2020, a brand agency that did. Each stop taught me to ship with whatever I had in front of me, which turns out to be useful training for the AI era, where the gap between "I have an idea" and "I have a working thing" keeps shrinking. I'm not trying to become an engineer. I'm trying to stay close enough to the material that I never have to wait for permission to make something real.
+      a product designer who increasingly looks like a builder. Day job: GoFood at Gojek, four years in, designing for 20M+ daily users across Southeast Asia. Night job: vibe-coding small apps, wiring n8n automations, and feeding ComfyUI graphs until something interesting comes out the other end. I got here through a non-linear seven-year route — motion graphics in high school, freelance UI through college, a pre-seed fintech that didn't survive 2020, a brand agency that did. Each stop taught me to ship with whatever I had in front of me, which turns out to be useful training for the AI era, where the gap between "I have an idea" and "I have a working thing" keeps shrinking. I'm not trying to become an engineer. I'm trying to stay close enough to the material that I never have to wait for permission to make something real.
     </p>
   </section>
 
@@ -723,6 +749,27 @@
 
     revealOnScroll(document.querySelector('.lets-collab'));
     revealOnScroll(document.querySelector('.connect-col'), 150);
+
+    // Cycling multilingual greeting
+    (function () {
+      const words = ['Hello', 'Halo', 'Hola', 'Привет', '안녕하세요', 'こんにちは', '你好', 'नमस्ते'];
+      const el = document.getElementById('hero-greeting');
+      if (!el) return;
+      let i = 0;
+
+      setTimeout(() => el.classList.add('visible'), 850);
+
+      setInterval(() => {
+        el.classList.remove('visible');
+        el.classList.add('leaving');
+        setTimeout(() => {
+          i = (i + 1) % words.length;
+          el.textContent = words[i];
+          el.classList.remove('leaving');
+          requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('visible')));
+        }, 450);
+      }, 2600);
+    })();
   </script>
 </body>
 </html>
