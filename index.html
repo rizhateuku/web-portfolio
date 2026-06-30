@@ -341,12 +341,25 @@
       margin-top: clamp(16px, 1.85vw, 32px);
     }
     .available-dot {
+      position: relative;
       width: clamp(8px, 0.69vw, 12px);
       height: clamp(8px, 0.69vw, 12px);
       border-radius: 50%;
-      background: #22c55e;
+      background: #1a9652;
       flex-shrink: 0;
-      animation: dotPulse 2.4s ease-in-out 2s infinite;
+      animation: dotBreathe 3.6s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+    }
+    .available-dot::before,
+    .available-dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #1a9652;
+      animation: dotPing 2.6s cubic-bezier(0.2, 0.6, 0.4, 1) infinite;
+    }
+    .available-dot::after {
+      animation-delay: 1.3s;
     }
     .available-text {
       font-size: clamp(13px, 1.39vw, 24px);
@@ -438,9 +451,13 @@
       81%  { opacity: 0; transform: translateY(-5px); }
       100% { opacity: 1; transform: translateY(-3px); }
     }
-    @keyframes dotPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
-      50%       { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    @keyframes dotBreathe {
+      0%, 100% { transform: scale(1);    opacity: 1; }
+      50%       { transform: scale(1.1); opacity: 0.8; }
+    }
+    @keyframes dotPing {
+      0%   { transform: scale(1);   opacity: 0.55; }
+      100% { transform: scale(3.4); opacity: 0; }
     }
 
     /* ── CURSOR ──────────────────────────────────────────── */
@@ -575,7 +592,9 @@
         opacity: 1 !important;
         transform: none !important;
       }
-      .available-dot { animation: none; }
+      .available-dot,
+      .available-dot::before,
+      .available-dot::after { animation: none; }
       #cursor-figma { transition: none !important; }
     }
 
@@ -671,9 +690,30 @@
       </div>
     </div>
 
+    <div class="work-card">
+      <img class="work-card-image"
+           src="Work 3 - Flash.png"
+           alt="GoFood Flash — quick-commerce case study visual">
+      <div class="work-card-footer">
+        <div class="work-card-info">
+          <div class="work-card-labels">
+            <span class="work-card-label">GoFood</span>
+            <span class="work-card-label">2025</span>
+          </div>
+          <p class="work-card-title">GoFood Flash — from parallel universe to native option</p>
+          <p class="work-card-subtitle">A quick-commerce MVP that missed, the diagnosis that explained why, and the redesign that turned 2k daily orders into 44k.</p>
+        </div>
+        <a href="gofood-flash.html" class="work-card-cta">
+          See case study
+          <svg class="arrow" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M10 24h28M30 14l10 10-10 10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
     <div class="work-card-soon">
       <div class="soon-content">
-        <p class="soon-eyebrow">In progress</p>
         <p class="work-card-soon-text">More coming soon<span class="soon-cursor">.</span></p>
       </div>
     </div>

@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GoFood Flash — Rizha Teuku</title>
+  <meta name="description" content="How GoFood Flash grew from 2,000 to 44,000 daily orders — a 20x lift in 4 months — by stopping it from being a parallel universe.">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    :root {
+      --green: #00AA13;
+      --green-dim: rgba(0,170,19,0.08);
+      --red: #dc2626;
+      --red-dim: rgba(220,38,38,0.08);
+      --ease: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background-color: #e9e9e9;
+      background-image:
+        radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px),
+        linear-gradient(to bottom, #ffffff 0%, #e9e9e9 clamp(500px, 40vw, 1100px));
+      background-size: 24px 24px, 100% 100%;
+      background-repeat: repeat, no-repeat;
+      color: #1c1d1d;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: clamp(20px, 3.7vw, 64px);
+      left: clamp(24px, 4vw, 72px);
+      transform: translateY(-8px);
+      display: flex;
+      align-items: center;
+      gap: clamp(20px, 2.78vw, 48px);
+      padding: clamp(10px, 1.39vw, 24px) clamp(16px, 1.85vw, 32px);
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 60px;
+      font-size: clamp(13px, 1.2vw, 20px);
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      z-index: 100;
+      opacity: 0;
+      animation: navIn 0.7s var(--ease) 0.1s forwards;
+    }
+    .nav-back {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: rgba(0,0,0,0.5);
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #000; }
+    .nav-back svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+    /* ── HERO ─────────────────────────────────────────────── */
+    .hero {
+      padding: clamp(140px, 16vw, 260px) clamp(24px, 8vw, 140px) clamp(60px, 6vw, 100px);
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: clamp(11px, 0.97vw, 16px);
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: clamp(20px, 2.3vw, 40px);
+      opacity: 0;
+      animation: fadeUp 0.7s var(--ease) 0.2s forwards;
+    }
+    .hero-tag-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+    .hero h1 {
+      font-size: clamp(32px, 5.2vw, 90px);
+      font-weight: 400;
+      line-height: 1.07;
+      letter-spacing: -0.04em;
+      max-width: 20ch;
+      margin-bottom: clamp(28px, 3.5vw, 60px);
+    }
+    .line-mask { display: block; overflow: hidden; padding-bottom: 0.06em; }
+    .line-inner { display: block; }
+    .line-inner.black {
+      color: #000;
+      transform: translateY(110%);
+      animation: lineUp 1s var(--ease) 0.35s forwards;
+    }
+    .line-inner.gray {
+      color: #8f8f8f;
+      transform: translateY(110%);
+      animation: lineUp 1s var(--ease) 0.52s forwards;
+    }
+    .hero-meta {
+      display: flex;
+      gap: clamp(24px, 3.5vw, 60px);
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s var(--ease) 0.85s forwards;
+    }
+    .meta-item { display: flex; flex-direction: column; gap: 4px; }
+    .meta-label {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+    }
+    .meta-value {
+      font-size: clamp(14px, 1.2vw, 20px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #000;
+    }
+
+    /* ── COVER ───────────────────────────────────────────── */
+    .cover {
+      margin: 0 clamp(24px, 4vw, 72px);
+      border-radius: clamp(16px, 3.5vw, 60px);
+      overflow: hidden;
+      aspect-ratio: 1632/938;
+      background: #0d1117;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 1s var(--ease), transform 1s var(--ease);
+    }
+    .cover.revealed { opacity: 1; transform: translateY(0); }
+    .cover img { width: 100%; height: 100%; object-fit: cover; }
+    .cover-placeholder {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #051a08 0%, #0a3012 50%, #051a08 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover-grid {
+      display: flex;
+      gap: clamp(12px, 2vw, 28px);
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .cover-phone {
+      width: clamp(60px, 7vw, 100px);
+      height: clamp(110px, 13vw, 190px);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: clamp(10px, 1.5vw, 18px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(6px, 1vw, 12px);
+      padding: clamp(8px, 1.2vw, 16px);
+      flex-shrink: 0;
+    }
+    .cover-phone.active {
+      background: rgba(0,170,19,0.08);
+      border-color: rgba(0,170,19,0.25);
+    }
+    .cover-phone-bar {
+      width: 100%;
+      height: clamp(5px, 0.7vw, 8px);
+      background: rgba(255,255,255,0.07);
+      border-radius: 100px;
+    }
+    .cover-phone-bar.highlight { background: rgba(0,170,19,0.4); }
+    .cover-flash-badge {
+      background: var(--green);
+      color: #fff;
+      font-size: clamp(6px, 0.7vw, 10px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+    .cover-arrow {
+      color: rgba(255,255,255,0.15);
+      font-size: clamp(16px, 2vw, 28px);
+      flex-shrink: 0;
+    }
+    .cover-number {
+      position: absolute;
+      bottom: clamp(20px, 4vw, 60px);
+      right: clamp(24px, 5vw, 80px);
+      font-size: clamp(48px, 12vw, 200px);
+      font-weight: 600;
+      letter-spacing: -0.06em;
+      color: rgba(0,170,19,0.06);
+      line-height: 1;
+      user-select: none;
+    }
+
+    /* ── SECTIONS ─────────────────────────────────────────── */
+    .cs-section {
+      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .cs-section-label {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      margin-bottom: clamp(16px, 1.85vw, 32px);
+    }
+    .cs-h2 {
+      font-size: clamp(28px, 3.7vw, 64px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      margin-bottom: clamp(16px, 2vw, 36px);
+      max-width: 22ch;
+    }
+    .cs-h2 strong { font-weight: 600; color: #000; }
+    .cs-body {
+      font-size: clamp(15px, 1.4vw, 24px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+      max-width: 60ch;
+    }
+    .cs-body + .cs-body { margin-top: 1em; }
+
+    /* ── DIVIDER ──────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: rgba(0,0,0,0.08);
+      margin: 0 clamp(24px, 8vw, 140px);
+    }
+
+    /* ── STATS BAND ──────────────────────────────────────── */
+    .stats-band {
+      background: #fff;
+      border-radius: clamp(16px, 3.5vw, 60px);
+      margin: clamp(40px, 5vw, 80px) clamp(24px, 4vw, 72px);
+      padding: clamp(40px, 5vw, 80px) clamp(32px, 5vw, 80px);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: clamp(24px, 3vw, 48px);
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 0.8vw, 14px);
+      padding-left: clamp(16px, 2vw, 32px);
+      border-left: 2px solid rgba(0,0,0,0.08);
+    }
+    .stat-item:first-child { border-left: none; padding-left: 0; }
+    .stat-number {
+      font-size: clamp(36px, 5.2vw, 90px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: #000;
+    }
+    .stat-number.green { color: var(--green); }
+    .stat-number.muted { color: #c0c0c0; }
+    .stat-desc {
+      font-size: clamp(12px, 1.1vw, 18px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+    }
+
+    /* ── TWO COL ─────────────────────────────────────────── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(40px, 5vw, 80px);
+      align-items: start;
+    }
+
+    /* ── TIME GAP VISUALIZATION ──────────────────────────── */
+    .time-gap-viz {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 36px);
+      padding: clamp(28px, 3.5vw, 52px);
+      background: #fff;
+      border-radius: clamp(16px, 2.5vw, 40px);
+    }
+    .time-row {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(8px, 1vw, 14px);
+    }
+    .time-row-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+    .time-label {
+      font-size: clamp(12px, 1.1vw, 18px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+    }
+    .time-value {
+      font-size: clamp(20px, 2.5vw, 42px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+    }
+    .time-value.actual { color: var(--green); }
+    .time-value.promised { color: #9a9a9a; }
+    .time-track {
+      height: clamp(10px, 1.2vw, 20px);
+      background: rgba(0,0,0,0.06);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .time-fill {
+      height: 100%;
+      border-radius: 100px;
+      width: 0;
+      transition: width 1.4s var(--ease);
+    }
+    .time-fill.actual  { background: var(--green); }
+    .time-fill.promised { background: #c0c0c0; }
+    .time-gap-callout {
+      display: flex;
+      align-items: center;
+      gap: clamp(10px, 1.2vw, 18px);
+      padding: clamp(12px, 1.5vw, 22px) clamp(16px, 2vw, 28px);
+      background: var(--green-dim);
+      border: 1.5px solid rgba(0,170,19,0.2);
+      border-radius: clamp(8px, 1vw, 14px);
+      margin-top: clamp(4px, 0.5vw, 8px);
+    }
+    .time-gap-callout-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+    .time-gap-callout p {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: #1c1d1d;
+      letter-spacing: -0.02em;
+      line-height: 1.4;
+    }
+    .time-gap-callout strong { color: var(--green); }
+
+    /* ── MVP CHOICE CARDS ────────────────────────────────── */
+    .mvp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(12px, 1.5vw, 20px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .mvp-choice {
+      background: #fff;
+      border-radius: clamp(14px, 2vw, 28px);
+      padding: clamp(24px, 3vw, 44px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(12px, 1.5vw, 20px);
+    }
+    .mvp-num {
+      font-size: clamp(32px, 4vw, 72px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      color: rgba(0,0,0,0.06);
+      line-height: 1;
+    }
+    .mvp-choice-title {
+      font-size: clamp(16px, 1.8vw, 28px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+    }
+    .mvp-choice-body {
+      font-size: clamp(13px, 1.1vw, 18px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      line-height: 1.5;
+    }
+    .mvp-miss {
+      margin-top: clamp(40px, 5vw, 80px);
+      background: rgba(0,0,0,0.03);
+      border: 1.5px solid rgba(0,0,0,0.06);
+      border-radius: clamp(14px, 2vw, 28px);
+      padding: clamp(24px, 3vw, 44px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(24px, 4vw, 60px);
+      align-items: center;
+    }
+    .mvp-miss-stat {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(6px, 0.8vw, 12px);
+    }
+    .mvp-miss-number {
+      font-size: clamp(48px, 7vw, 120px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: #c0c0c0;
+    }
+    .mvp-miss-label {
+      font-size: clamp(14px, 1.5vw, 24px);
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      color: #9a9a9a;
+    }
+    .mvp-miss-text {
+      font-size: clamp(15px, 1.5vw, 24px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.55;
+    }
+
+    /* ── PULL QUOTE ───────────────────────────────────────── */
+    .pull-quote {
+      padding: clamp(48px, 6vw, 100px) clamp(24px, 8vw, 140px);
+      background: #fff;
+    }
+    .pull-quote blockquote {
+      font-size: clamp(22px, 3.3vw, 56px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.25;
+      color: #000;
+      max-width: 26ch;
+    }
+    .pull-quote blockquote em { color: #8f8f8f; font-style: normal; }
+    .pull-quote cite {
+      display: block;
+      margin-top: clamp(16px, 2vw, 32px);
+      font-size: clamp(11px, 0.9vw, 14px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+      font-style: normal;
+    }
+
+    /* ── COHORT FINDINGS ─────────────────────────────────── */
+    .cohort-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(12px, 1.5vw, 20px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .cohort-card {
+      border-radius: clamp(16px, 2.5vw, 36px);
+      padding: clamp(28px, 3.5vw, 52px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 36px);
+    }
+    .cohort-card.power { background: #1c1d1d; }
+    .cohort-card.churned { background: #fff; }
+    .cohort-tag {
+      font-size: clamp(10px, 0.8vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+    .cohort-card.power .cohort-tag { color: rgba(0,170,19,0.7); }
+    .cohort-quote {
+      font-size: clamp(18px, 2.2vw, 36px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.3;
+    }
+    .cohort-card.power .cohort-quote { color: #fff; }
+    .cohort-card.churned .cohort-quote { color: #1c1d1d; }
+    .cohort-mark {
+      font-size: clamp(48px, 5vw, 80px);
+      font-weight: 600;
+      line-height: 0.6;
+      letter-spacing: -0.05em;
+      user-select: none;
+    }
+    .cohort-card.power .cohort-mark { color: rgba(255,255,255,0.06); }
+    .cohort-card.churned .cohort-mark { color: rgba(0,0,0,0.06); }
+    .cohort-finding {
+      font-size: clamp(13px, 1.1vw, 18px);
+      letter-spacing: -0.02em;
+      line-height: 1.5;
+    }
+    .cohort-card.power .cohort-finding { color: rgba(255,255,255,0.4); }
+    .cohort-card.churned .cohort-finding { color: #9a9a9a; }
+
+    /* ── PIVOT DECISIONS ─────────────────────────────────── */
+    .pivot-stack {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(16px, 2vw, 28px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .pivot-card {
+      background: #fff;
+      border-radius: clamp(16px, 2.5vw, 40px);
+      padding: clamp(28px, 3.5vw, 56px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 36px);
+    }
+    .pivot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: clamp(16px, 3vw, 48px);
+      flex-wrap: wrap;
+    }
+    .pivot-header-left { display: flex; flex-direction: column; gap: clamp(6px, 0.7vw, 10px); }
+    .pivot-num {
+      font-size: clamp(11px, 0.9vw, 14px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+    .pivot-title {
+      font-size: clamp(18px, 2.2vw, 36px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+    }
+    .pivot-body {
+      font-size: clamp(13px, 1.1vw, 18px);
+      color: #6a6a6a;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+      max-width: 48ch;
+    }
+    .change-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(12px, 1.5vw, 20px);
+    }
+    .change-item {
+      background: #f8f8f8;
+      border-radius: clamp(8px, 1vw, 14px);
+      padding: clamp(14px, 1.8vw, 24px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .change-badge {
+      font-size: clamp(9px, 0.7vw, 11px);
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 4px;
+      align-self: flex-start;
+      white-space: nowrap;
+    }
+    .change-badge.before { background: rgba(0,0,0,0.06); color: #9a9a9a; }
+    .change-badge.after  { background: var(--green-dim); color: var(--green); }
+    .change-text {
+      font-size: clamp(12px, 1.05vw, 17px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.45;
+    }
+
+    /* ── TOUCHPOINTS STRIP ───────────────────────────────── */
+    .touchpoints {
+      margin-top: clamp(24px, 3vw, 44px);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(12px, 1.5vw, 20px);
+    }
+    .touchpoints-label {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+    }
+    .touchpoints-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: clamp(8px, 1vw, 14px);
+    }
+    .tp-chip {
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 0.7vw, 10px);
+      padding: clamp(10px, 1.2vw, 18px) clamp(14px, 1.8vw, 26px);
+      background: #fff;
+      border-radius: 100px;
+      border: 1.5px solid rgba(0,0,0,0.08);
+    }
+    .tp-flash-badge {
+      background: var(--green);
+      color: #fff;
+      font-size: clamp(7px, 0.65vw, 10px);
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .tp-name {
+      font-size: clamp(12px, 1.1vw, 18px);
+      letter-spacing: -0.02em;
+      color: #1c1d1d;
+    }
+    .tp-chip.new-work {
+      border-color: rgba(0,170,19,0.25);
+      background: var(--green-dim);
+    }
+
+    /* ── DARK DECISION SECTION ───────────────────────────── */
+    .decision-section {
+      background: #1a1f1a;
+      border-radius: clamp(20px, 4vw, 72px);
+      margin: 0 clamp(24px, 4vw, 72px);
+      color: #fff;
+      overflow: hidden;
+    }
+    .decision-header {
+      padding: clamp(48px, 6vw, 100px) clamp(48px, 6vw, 100px) clamp(36px, 4.5vw, 72px);
+    }
+    .decision-section .cs-section-label { color: rgba(255,255,255,0.3); }
+    .decision-section .cs-h2 { color: #fff; }
+    .decision-section .cs-h2 strong { color: rgba(255,255,255,0.5); }
+    .decision-section .cs-body { color: rgba(255,255,255,0.5); }
+
+    /* Complexity table */
+    .coord-table {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .coord-col {
+      padding: clamp(28px, 3.5vw, 52px) clamp(32px, 4vw, 56px);
+      border-right: 1px solid rgba(255,255,255,0.08);
+    }
+    .coord-col:last-child { border-right: none; }
+    .coord-eyebrow {
+      font-size: clamp(10px, 0.7vw, 12px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: clamp(10px, 1.2vw, 18px);
+    }
+    .coord-item {
+      font-size: clamp(14px, 1.3vw, 20px);
+      color: rgba(255,255,255,0.6);
+      letter-spacing: -0.03em;
+      line-height: 1.5;
+      display: flex;
+      gap: 10px;
+      padding: clamp(10px, 1.2vw, 16px) 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .coord-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .coord-item::before { content: '—'; opacity: 0.2; flex-shrink: 0; }
+    .decision-footer {
+      padding: clamp(28px, 3.5vw, 52px) clamp(48px, 6vw, 100px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .decision-footer p {
+      font-size: clamp(18px, 2.5vw, 42px);
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      line-height: 1.3;
+      color: rgba(255,255,255,0.6);
+      max-width: 30ch;
+    }
+    .decision-footer p em { color: #fff; font-style: normal; }
+
+    /* ── RESULTS ─────────────────────────────────────────── */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: clamp(16px, 2vw, 28px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .result-card {
+      background: #fff;
+      border-radius: clamp(16px, 2.5vw, 40px);
+      padding: clamp(28px, 3.5vw, 56px);
+    }
+    .result-card.featured {
+      background: var(--green-dim);
+      border: 1.5px solid rgba(0,170,19,0.15);
+      grid-column: span 2;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(32px, 4vw, 64px);
+      align-items: center;
+    }
+    .result-number {
+      font-size: clamp(56px, 8vw, 140px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: var(--green);
+    }
+    .result-number.neutral { color: #000; }
+    .result-title {
+      font-size: clamp(16px, 1.8vw, 28px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      margin-bottom: clamp(8px, 1vw, 16px);
+    }
+    .result-body {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.55;
+    }
+    .result-divider {
+      width: 40px;
+      height: 2px;
+      background: var(--green);
+      margin: clamp(12px, 1.5vw, 24px) 0;
+    }
+
+    /* ── REFLECTION ──────────────────────────────────────── */
+    .reflection-list {
+      display: flex;
+      flex-direction: column;
+      gap: clamp(20px, 2.5vw, 40px);
+      margin-top: clamp(32px, 4vw, 64px);
+    }
+    .reflection-item {
+      display: grid;
+      grid-template-columns: clamp(32px, 4vw, 64px) 1fr;
+      gap: clamp(16px, 2vw, 32px);
+      align-items: start;
+      padding-bottom: clamp(20px, 2.5vw, 40px);
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+    }
+    .reflection-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .reflection-n {
+      font-size: clamp(32px, 4vw, 72px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: rgba(0,0,0,0.07);
+    }
+    .reflection-title {
+      font-size: clamp(16px, 1.8vw, 28px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      margin-bottom: clamp(8px, 1vw, 16px);
+    }
+    .reflection-body {
+      font-size: clamp(13px, 1.2vw, 20px);
+      color: #454545;
+      letter-spacing: -0.02em;
+      line-height: 1.6;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .cs-footer {
+      background-color: #e9e9e9;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.12) 1px, transparent 1px);
+      background-size: 24px 24px;
+      padding: clamp(60px, 7vw, 120px) clamp(24px, 8vw, 140px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: clamp(8px, 1vw, 16px);
+      border: 2px solid #000;
+      border-radius: 170px;
+      padding: clamp(10px, 1.39vw, 24px) clamp(18px, 2.78vw, 48px);
+      font-size: clamp(14px, 1.5vw, 26px);
+      font-weight: 500;
+      color: #000;
+      letter-spacing: -0.04em;
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+      isolation: isolate;
+      transition: color 0.45s var(--ease);
+    }
+    .back-link::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: #000;
+      border-radius: inherit;
+      transform: scaleX(0);
+      transform-origin: left center;
+      transition: transform 0.5s var(--ease);
+      z-index: -1;
+    }
+    .back-link:hover::before { transform: scaleX(1); }
+    .back-link:hover { color: #fff; }
+    .back-link svg { width: clamp(16px, 2vw, 32px); height: clamp(16px, 2vw, 32px); flex-shrink: 0; }
+    .footer-copy {
+      font-size: clamp(11px, 0.9vw, 14px);
+      color: #9a9a9a;
+      letter-spacing: -0.02em;
+      text-align: right;
+    }
+
+    /* ── SCROLL REVEAL ───────────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.9s var(--ease), transform 0.9s var(--ease);
+    }
+    .reveal.revealed { opacity: 1; transform: translateY(0); }
+
+    /* ── CURSOR ───────────────────────────────────────────── */
+    @media (hover: hover) and (pointer: fine) {
+      body, a, button { cursor: none; }
+      #cursor-glow {
+        position: fixed; top: 0; left: 0;
+        width: 32px; height: 32px; border-radius: 50%;
+        border: 1.5px solid rgba(0,0,0,0.55);
+        background: rgba(255,255,255,0.25);
+        backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+        pointer-events: none; z-index: 9999; will-change: transform; opacity: 0;
+        transition:
+          opacity 0.35s ease,
+          width 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+          height 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+          border-radius 0.45s var(--ease);
+      }
+      #cursor-glow::before {
+        content: '';
+        position: absolute; top: 50%; left: 50%;
+        width: 4px; height: 4px; border-radius: 50%;
+        background: rgba(0,0,0,0.6);
+        transform: translate(-50%, -50%);
+        transition: opacity 0.2s ease, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      #cursor-glow.active  { opacity: 1; }
+      #cursor-glow.hovering {
+        width: 52px; height: 52px;
+        border-color: rgba(0,0,0,0.2);
+        background: rgba(255,255,255,0.12);
+      }
+      #cursor-glow.hovering::before { opacity: 0; transform: translate(-50%,-50%) scale(0); }
+      #cursor-glow.clicking {
+        width: 20px; height: 20px;
+        background: rgba(0,0,0,0.08);
+        border-color: rgba(0,0,0,0.5);
+      }
+      #cursor-glow.clicking::before { transform: translate(-50%,-50%) scale(2); background: rgba(0,0,0,0.7); }
+      #cursor-glow.text-cursor {
+        width: 2px; height: var(--text-h, 48px);
+        border-radius: 2px; border-color: #007AFF; background: #007AFF;
+        backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+      }
+      #cursor-glow.text-cursor::before { opacity: 0; }
+      #cursor-glow.mag-warp {
+        width: var(--mag-w, 52px); height: var(--mag-h, 20px);
+        border-radius: 100px;
+        background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.16);
+        backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+      }
+      #cursor-glow.mag-warp::before { opacity: 0; }
+    }
+
+    /* ── KEYFRAMES ────────────────────────────────────────── */
+    @keyframes navIn  { to { opacity: 1; transform: translateY(0); } }
+    @keyframes lineUp { to { transform: translateY(0); } }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── RESPONSIVE ───────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .stats-band { grid-template-columns: repeat(2, 1fr); }
+      .two-col { grid-template-columns: 1fr; }
+      .mvp-grid { grid-template-columns: 1fr; }
+      .cohort-grid { grid-template-columns: 1fr; }
+      .change-pair { grid-template-columns: 1fr; }
+      .coord-table { grid-template-columns: 1fr; }
+      .coord-col { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .coord-col:last-child { border-bottom: none; }
+      .result-card.featured { grid-template-columns: 1fr; grid-column: span 2; }
+      .results-grid { grid-template-columns: 1fr; }
+      .result-card.featured { grid-column: span 1; }
+    }
+    @media (max-width: 600px) {
+      .stats-band { grid-template-columns: 1fr 1fr; }
+      .cs-footer { flex-direction: column; align-items: flex-start; }
+      .footer-copy { text-align: left; }
+      .mvp-miss { grid-template-columns: 1fr; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal, .cover { opacity: 1 !important; transform: none !important; }
+      #cursor-glow { display: none; }
+      body { cursor: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="nav-back" aria-label="Back to portfolio">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back
+    </a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-tag">
+      <div class="hero-tag-dot"></div>
+      Case study · GoFood · Android &amp; iOS
+    </div>
+    <h1>
+      <span class="line-mask"><span class="line-inner black">From parallel universe</span></span>
+      <span class="line-mask"><span class="line-inner black">to native option:</span></span>
+      <span class="line-mask"><span class="line-inner gray">GoFood Flash, 20×.</span></span>
+    </h1>
+    <div class="hero-meta">
+      <div class="meta-item">
+        <span class="meta-label">Role</span>
+        <span class="meta-value">Senior Product Designer</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Team</span>
+        <span class="meta-value">GoFood, Gojek</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Timeline</span>
+        <span class="meta-value">Q1 – Nov 2025</span>
+      </div>
+      <div class="meta-item">
+        <span class="meta-label">Status</span>
+        <span class="meta-value">Live · ~5% order penetration</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- COVER -->
+  <div class="cover reveal">
+    <img src="Work 3 - Flash.png" alt="GoFood Flash — case study visual">
+  </div>
+
+  <!-- TL;DR STATS -->
+  <div class="stats-band reveal">
+    <div class="stat-item">
+      <span class="stat-number green">20×</span>
+      <span class="stat-desc">Order growth in 4 months — from 2k to 44k daily</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number green">44k</span>
+      <span class="stat-desc">Daily checkouts at v2 peak — up from a 2,000 daily MVP baseline</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number green">~5%</span>
+      <span class="stat-desc">GoFood order penetration — up from under 1% post-MVP</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number muted">10</span>
+      <span class="stat-desc">Minute gap between what Express promised and what it actually delivered</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- THE INSIGHT -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">The insight</div>
+    <div class="two-col">
+      <div class="reveal">
+        <h2 class="cs-h2">We were delivering faster <strong>than we were promising.</strong></h2>
+        <p class="cs-body">I was looking at delivery data with my PM and noticed something we'd been hiding from ourselves: Express deliveries that arrived ahead of schedule were averaging 13–15 minutes. Our checkout page told users to expect 25 minutes.</p>
+        <p class="cs-body">That's not a minor under-promise. That's a different product. In parallel, we'd been watching the quick-commerce wave in India — Zepto, Blinkit, Swiggy Instamart. Sub-15-minute delivery had moved from gimmick to category.</p>
+        <p class="cs-body" style="margin-top: 1em;">Jakarta's density profile looked similar. We thought the demand signal would translate.</p>
+      </div>
+      <div class="time-gap-viz reveal">
+        <div class="time-row">
+          <div class="time-row-header">
+            <span class="time-label">Average Express delivery (actual)</span>
+            <span class="time-value actual">~13 min</span>
+          </div>
+          <div class="time-track">
+            <div class="time-fill actual" data-width="52"></div>
+          </div>
+        </div>
+        <div class="time-row">
+          <div class="time-row-header">
+            <span class="time-label">Promised at checkout</span>
+            <span class="time-value promised">25 min</span>
+          </div>
+          <div class="time-track">
+            <div class="time-fill promised" data-width="100"></div>
+          </div>
+        </div>
+        <div class="time-gap-callout">
+          <div class="time-gap-callout-dot"></div>
+          <p>A <strong>10-minute gap</strong> between promise and reality — an opportunity sitting in plain sight.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- THE MVP -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">The MVP — July 2025</div>
+    <div class="reveal">
+      <h2 class="cs-h2">Two design choices that <strong>are the entire story.</strong></h2>
+      <p class="cs-body">Before building, concept testing and rapid guerrilla sessions confirmed the value proposition. Users got it — speed of delivery was the headline, the 15-minute promise was credible, and SKU-level eligibility didn't confuse them. We shipped.</p>
+      <p class="cs-body">The MVP had two design decisions that, in hindsight, explain everything that followed.</p>
+    </div>
+
+    <div class="mvp-grid">
+      <div class="mvp-choice reveal">
+        <div class="mvp-num">01</div>
+        <div class="mvp-choice-title">A dedicated discovery funnel</div>
+        <div class="mvp-choice-body">Flash SKUs lived inside a separate entry point. The only way to reach them was Browse Flash → pick from eligible items → check out. No other path in.</div>
+      </div>
+      <div class="mvp-choice reveal">
+        <div class="mvp-num">02</div>
+        <div class="mvp-choice-title">A locked checkout</div>
+        <div class="mvp-choice-body">When a user reached checkout from the Flash funnel, Flash was the <em>only</em> delivery option shown. No Express, no Regular, no Hemat — plus a 3-SKU cap. A deliberate container.</div>
+      </div>
+    </div>
+
+    <div class="mvp-miss reveal">
+      <div>
+        <div class="mvp-miss-stat">
+          <span class="mvp-miss-number">2k</span>
+          <span class="mvp-miss-label">daily checkouts</span>
+        </div>
+        <div class="mvp-miss-stat" style="margin-top: clamp(16px, 2vw, 28px);">
+          <span class="mvp-miss-number">&lt;1%</span>
+          <span class="mvp-miss-label">GoFood order penetration</span>
+        </div>
+      </div>
+      <p class="mvp-miss-text">For a product the team had real conviction in, this was a miss. The logic at the time was reasonable — separating Flash would make it feel premium, focused, intentional. We were wrong about what "protecting" a product actually protects.</p>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- DIAGNOSIS -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">The diagnosis</div>
+    <div class="reveal">
+      <h2 class="cs-h2">Two cohorts. <strong>One finding.</strong></h2>
+      <p class="cs-body">Instead of iterating on the surface — bigger badges, more entry points — we slowed down and talked to users. The research team ran interviews with power users who <em>did</em> use Flash and churned users who tried it once and didn't come back.</p>
+    </div>
+
+    <div class="cohort-grid">
+      <div class="cohort-card power reveal">
+        <div>
+          <div class="cohort-mark">"</div>
+          <p class="cohort-tag">Power users · Early adopters</p>
+        </div>
+        <p class="cohort-quote">"Why isn't Flash available when I'm already browsing my usual merchants?"</p>
+        <p class="cohort-finding">They liked Flash and wanted to find it in their normal flow — not behind a separate door they had to remember to open.</p>
+      </div>
+      <div class="cohort-card churned reveal">
+        <div>
+          <div class="cohort-mark">"</div>
+          <p class="cohort-tag">Churned users · Tried once, didn't return</p>
+        </div>
+        <p class="cohort-quote">"I feel like I'm being forced to use Flash."</p>
+        <p class="cohort-finding">At checkout, they couldn't see Express or Regular. The thing they'd done a hundred times — compare options before committing — was gone.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL QUOTE -->
+  <div class="pull-quote">
+    <blockquote>"Both groups, from opposite ends of engagement, were telling us <em>the same thing</em>: stop making Flash its own world. Put it inside the world we already use."</blockquote>
+    <cite>Research synthesis, GoFood Flash v2 diagnostic</cite>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- THE PIVOT -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">The pivot</div>
+    <h2 class="cs-h2 reveal">Two decisions from <strong>one workshop.</strong></h2>
+    <p class="cs-body reveal">I co-led a workshop with my PM, pulling in design, engineering, ops, and research. We mapped what we'd built against what users were asking for, brainstormed responses, and prioritised by impact and feasibility.</p>
+
+    <div class="pivot-stack">
+
+      <div class="pivot-card reveal">
+        <div class="pivot-header">
+          <div class="pivot-header-left">
+            <div class="pivot-num">Decision 01</div>
+            <div class="pivot-title">Make checkout look normal again</div>
+          </div>
+          <div class="pivot-body">Flash replaces Express in the standard delivery options list when a user adds 15-minute-eligible SKUs to their cart. Regular and Hemat stay. The 3-SKU cap goes away. Flash stops being a tunnel and becomes a tier.</div>
+        </div>
+        <div class="change-pair">
+          <div class="change-item">
+            <span class="change-badge before">Before</span>
+            <span class="change-text">Flash-only locked checkout. No Express, no Regular — and no way to compare. Even users who wanted 15-minute delivery found this disorienting.</span>
+          </div>
+          <div class="change-item">
+            <span class="change-badge after">After</span>
+            <span class="change-text">Flash replaces Express in the familiar delivery options list. Users see the pattern they recognise. They can compare. They can choose.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pivot-card reveal">
+        <div class="pivot-header">
+          <div class="pivot-header-left">
+            <div class="pivot-num">Decision 02</div>
+            <div class="pivot-title">Make Flash a label everywhere — not a destination</div>
+          </div>
+          <div class="pivot-body">The harder one — and the one I'm most proud of leading. Flash being native to checkout only matters if users can discover eligible SKUs while browsing normally. That meant a scalable Flash label propagating across every GoFood surface.</div>
+        </div>
+        <div class="touchpoints">
+          <p class="touchpoints-label">Flash label rolled out across</p>
+          <div class="touchpoints-row">
+            <div class="tp-chip new-work">
+              <span class="tp-flash-badge">Flash</span>
+              <span class="tp-name">Home</span>
+            </div>
+            <div class="tp-chip new-work">
+              <span class="tp-flash-badge">Flash</span>
+              <span class="tp-name">Merchant listing</span>
+            </div>
+            <div class="tp-chip new-work">
+              <span class="tp-flash-badge">Flash</span>
+              <span class="tp-name">Search</span>
+            </div>
+            <div class="tp-chip new-work">
+              <span class="tp-flash-badge">Flash</span>
+              <span class="tp-name">Merchant profile</span>
+            </div>
+            <div class="tp-chip new-work">
+              <span class="tp-flash-badge">Flash</span>
+              <span class="tp-name">Checkout</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DARK DECISION SECTION -->
+  <div style="padding: 0 0 clamp(60px, 7vw, 120px);">
+    <div class="decision-section reveal">
+      <div class="decision-header">
+        <div class="cs-section-label">The coordination problem underneath the design problem</div>
+        <h2 class="cs-h2" style="margin-top: clamp(12px, 1.5vw, 24px);">The design problem became <strong>a coordination problem.</strong></h2>
+        <p class="cs-body" style="margin-top: clamp(12px, 1.5vw, 24px);">The label expansion required cross-team alignment that went well beyond screens. The MVP's failure mode was protective isolation. The fix required deliberate integration across every touchpoint Flash could plausibly appear on.</p>
+      </div>
+
+      <div class="coord-table">
+        <div class="coord-col">
+          <div class="coord-eyebrow">Stakeholder alignment</div>
+          <div class="coord-item">Show other PMs the post-launch data and research — not just the design direction</div>
+          <div class="coord-item">Convince partner teams to take on label implementation in their surfaces</div>
+          <div class="coord-item">Get product commitment across GoFood home, search, and merchant surfaces</div>
+        </div>
+        <div class="coord-col">
+          <div class="coord-eyebrow">Design system work</div>
+          <div class="coord-item">Design a label that worked across multiple surfaces without breaking existing visual hierarchies</div>
+          <div class="coord-item">Land the Flash badge as a reusable component in the GoFood design system</div>
+          <div class="coord-item">Coordinate with the design system team for long-term maintenance</div>
+        </div>
+        <div class="coord-col">
+          <div class="coord-eyebrow">Operations alignment</div>
+          <div class="coord-item">Coordinate with operations on which SKUs qualified at any given time</div>
+          <div class="coord-item">Build a scalable ops model for Flash eligibility — not a one-off list</div>
+          <div class="coord-item">Ensure the label reflected real-time eligibility, not stale data</div>
+        </div>
+      </div>
+
+      <div class="decision-footer">
+        <p>"The MVP's failure mode was <em>protective isolation</em>. The fix required deliberate integration — not just across screens, but across teams."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <section class="cs-section" style="padding-top: 0;">
+    <div class="cs-section-label reveal">The result</div>
+    <h2 class="cs-h2 reveal">The thing that moved the metric wasn't <strong>a new feature.</strong></h2>
+    <div class="results-grid">
+      <div class="result-card featured reveal">
+        <div>
+          <div class="result-number">20×</div>
+          <div class="result-divider"></div>
+          <div class="result-title">Order growth, July → November 2025</div>
+        </div>
+        <div>
+          <p class="result-body">From 2,000 to 44,000 daily checkouts in four months. Adoption distributed across both new-to-Flash users and reactivated churned users.</p>
+          <p class="result-body" style="margin-top: 12px;">The thing that moved the metric wasn't a new feature. It was removing the wall we'd put up around the old one. Flash didn't need to be bigger — it needed to stop being separate.</p>
+        </div>
+      </div>
+      <div class="result-card reveal">
+        <div class="result-number" style="font-size: clamp(48px, 7vw, 120px);">~5%</div>
+        <div class="result-divider"></div>
+        <div class="result-title">GoFood order penetration</div>
+        <p class="result-body">Up from under 1% post-MVP. Users discovering Flash naturally in their existing flow converted at a fundamentally different rate than users who had to seek it out.</p>
+      </div>
+      <div class="result-card reveal">
+        <div class="result-number neutral" style="font-size: clamp(28px, 3.5vw, 60px);">Funnel, not destination</div>
+        <div class="result-divider" style="background: #000;"></div>
+        <div class="result-title">The real insight</div>
+        <p class="result-body">Making Flash a native tier inside an existing flow — rather than a separate product to discover — was the entire lever. The design change was small. The product thinking behind it was the whole project.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PULL QUOTE 2 -->
+  <div class="pull-quote">
+    <blockquote>"The change wasn't bigger. It was <em>smaller</em>. We stopped making Flash a parallel universe and made it a native option inside the flow users already knew."</blockquote>
+    <cite>GoFood Flash v2 — post-launch summary</cite>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- REFLECTION -->
+  <section class="cs-section">
+    <div class="cs-section-label reveal">Reflection</div>
+    <h2 class="cs-h2 reveal">What this project <strong>taught me</strong> and what I'd do differently.</h2>
+    <div class="reflection-list">
+      <div class="reflection-item reveal">
+        <div class="reflection-n">01</div>
+        <div>
+          <div class="reflection-title">The "protective wrapper" instinct is usually wrong</div>
+          <p class="reflection-body">When you launch something new, there's a strong pull to seal it off — different funnel, different rules, different visual language — so it doesn't get diluted. Sometimes that's right. More often, you're trading discoverability and trust for the illusion of focus.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">02</div>
+        <div>
+          <div class="reflection-title">Concept tests confirm the idea. They don't catch the framing.</div>
+          <p class="reflection-body">Our testing showed users understood and wanted Flash. It didn't catch that they wanted it inside the existing flow, not adjacent to it. The MVP launch was, in a sense, the usability test we couldn't have run earlier — and it was expensive.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">03</div>
+        <div>
+          <div class="reflection-title">Post-launch listening is the cheapest design research that exists</div>
+          <p class="reflection-body">The cost of those interviews with power users and churned users was tiny. The information gain was the entire project. We should have scheduled them on day 30 post-launch, not waited until we noticed the numbers weren't moving.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">04</div>
+        <div>
+          <div class="reflection-title">A workshop is a design output</div>
+          <p class="reflection-body">Co-leading the v2 workshop with my PM was as much "design work" as the wireframes. Getting the right people in the room, framing the problem so it was solvable, and producing decisions people would commit to — that's where the 20× came from.</p>
+        </div>
+      </div>
+      <div class="reflection-item reveal">
+        <div class="reflection-n">05</div>
+        <div>
+          <div class="reflection-title">What I'd do differently</div>
+          <p class="reflection-body">Pre-MVP, I'd have included a "what if Flash were a label, not a funnel?" branch in the original design exploration. We had enough information at concept-test time to consider it. We didn't, because the parallel-funnel framing felt more like a "real launch." That bias is the one I want to keep watching for.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="cs-footer">
+    <div>
+      <a href="index.html" class="back-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+        Back
+      </a>
+    </div>
+    <div class="footer-copy">
+      <div>© 2026 Rizha Teuku</div>
+      <div style="margin-top: 4px;">Senior Product Designer, Gojek</div>
+    </div>
+  </footer>
+
+  <div id="cursor-glow" aria-hidden="true"></div>
+
+  <script>
+    // Scroll reveals + time-fill bar animations
+    const revealEls = document.querySelectorAll('.reveal');
+    const fillEls   = document.querySelectorAll('[data-width]');
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        if (el.classList.contains('reveal')) el.classList.add('revealed');
+        el.querySelectorAll('[data-width]').forEach(bar => {
+          bar.style.width = bar.dataset.width + '%';
+        });
+        io.unobserve(el);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+    const barIo = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        entry.target.style.width = entry.target.dataset.width + '%';
+        barIo.unobserve(entry.target);
+      });
+    }, { threshold: 0.2 });
+
+    revealEls.forEach(el => io.observe(el));
+    fillEls.forEach(el => barIo.observe(el));
+
+    // Stagger children
+    document.querySelectorAll('.cohort-grid > .reveal, .reflection-list > .reveal, .pivot-stack > .reveal').forEach((el, i) => {
+      el.style.transitionDelay = (i * 80) + 'ms';
+    });
+
+    // Cursor
+    ;(function () {
+      const cur = document.getElementById('cursor-glow');
+      if (!cur || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+      let mx = 0, my = 0, cx = -60, cy = -60;
+      document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; cur.classList.add('active'); }, { passive: true });
+      document.addEventListener('mouseleave', () => cur.classList.remove('active'));
+      document.addEventListener('mousedown', () => cur.classList.add('clicking'));
+      document.addEventListener('mouseup',   () => cur.classList.remove('clicking'));
+      document.querySelectorAll('h1, h2, h3, h4, p, li, blockquote').forEach(el => {
+        if (el.closest('a, button')) return;
+        el.addEventListener('mouseenter', () => {
+          const fs = parseFloat(getComputedStyle(el).fontSize);
+          cur.style.setProperty('--text-h', fs + 'px');
+          cur.classList.remove('hovering');
+          cur.classList.add('text-cursor');
+        });
+        el.addEventListener('mouseleave', () => cur.classList.remove('text-cursor'));
+      });
+      let magEl = null, magTX = 0, magTY = 0;
+      document.querySelectorAll('a, button').forEach(el => {
+        el.addEventListener('mouseenter', () => {
+          const r = el.getBoundingClientRect();
+          if (r.width > 280 || r.height > 100) { cur.classList.add('hovering'); return; }
+          magEl = el;
+          cur.style.setProperty('--mag-w', (r.width  + 20) + 'px');
+          cur.style.setProperty('--mag-h', (r.height + 20) + 'px');
+          magTX = r.left + r.width  / 2;
+          magTY = r.top  + r.height / 2;
+          cur.classList.remove('hovering', 'text-cursor');
+          cur.classList.add('mag-warp');
+          el.style.transition = 'none';
+        });
+        el.addEventListener('mousemove', e => {
+          if (magEl !== el) return;
+          const r  = el.getBoundingClientRect();
+          const ex = r.left + r.width  / 2;
+          const ey = r.top  + r.height / 2;
+          const dx = e.clientX - ex;
+          const dy = e.clientY - ey;
+          el.style.transform = `translate(${dx * 0.28}px, ${dy * 0.28}px)`;
+          magTX = ex + dx * 0.10;
+          magTY = ey + dy * 0.10;
+        });
+        el.addEventListener('mouseleave', () => {
+          if (magEl === el) {
+            magEl = null;
+            el.style.transition = 'transform 0.65s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            el.style.transform  = '';
+            cur.classList.remove('mag-warp');
+          } else {
+            cur.classList.remove('hovering');
+          }
+        });
+      });
+      (function tick() {
+        const tx = magEl ? magTX : mx;
+        const ty = magEl ? magTY : my;
+        cx += (tx - cx) * (magEl ? 0.18 : 0.13);
+        cy += (ty - cy) * (magEl ? 0.18 : 0.13);
+        cur.style.left = cx + 'px';
+        cur.style.top  = cy + 'px';
+        cur.style.transform = 'translate(-50%,-50%)';
+        requestAnimationFrame(tick);
+      })();
+    })();
+  </script>
+</body>
+</html>
