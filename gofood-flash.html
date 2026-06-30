@@ -935,9 +935,96 @@
       #cursor-glow { display: none; }
       body { cursor: auto; }
     }
+    /* PASSWORD GATE */
+    #pw-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #f5f5f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      transition: opacity 0.4s ease;
+    }
+    #pw-gate.fade-out { opacity: 0; pointer-events: none; }
+    #pw-gate-label {
+      font-size: clamp(11px, 0.9vw, 13px);
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #000;
+      opacity: 0.4;
+    }
+    #pw-input {
+      font-family: 'Work Sans', sans-serif;
+      font-size: clamp(16px, 1.4vw, 20px);
+      font-weight: 400;
+      letter-spacing: -0.03em;
+      color: #000;
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid rgba(0,0,0,0.2);
+      outline: none;
+      padding: 8px 0;
+      width: clamp(200px, 24vw, 320px);
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    #pw-input:focus { border-color: #000; }
+    #pw-input.shake {
+      animation: pw-shake 0.35s ease;
+      border-color: #e00;
+    }
+    #pw-error {
+      font-size: 12px;
+      color: #e00;
+      opacity: 0;
+      transition: opacity 0.2s;
+      height: 16px;
+    }
+    #pw-error.visible { opacity: 1; }
+    @keyframes pw-shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-6px); }
+      80%      { transform: translateX(6px); }
+    }
   </style>
 </head>
 <body>
+
+  <!-- PASSWORD GATE -->
+  <div id="pw-gate">
+    <div id="pw-gate-label">Protected case study</div>
+    <input id="pw-input" type="password" placeholder="Enter password" autocomplete="off" autofocus>
+    <div id="pw-error">Wrong password</div>
+  </div>
+  <script>
+    (function() {
+      var gate = document.getElementById('pw-gate');
+      var input = document.getElementById('pw-input');
+      var error = document.getElementById('pw-error');
+      var KEY = 'auth_flash';
+      var PASS = 'nasigoreng';
+      if (sessionStorage.getItem(KEY) === '1') { gate.style.display = 'none'; return; }
+      input.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        if (input.value === PASS) {
+          sessionStorage.setItem(KEY, '1');
+          gate.classList.add('fade-out');
+          setTimeout(function() { gate.style.display = 'none'; }, 400);
+        } else {
+          input.classList.add('shake');
+          error.classList.add('visible');
+          setTimeout(function() { input.classList.remove('shake'); input.value = ''; }, 400);
+        }
+      });
+      input.addEventListener('input', function() { error.classList.remove('visible'); });
+    })();
+  </script>
 
   <!-- NAV -->
   <nav>
@@ -1149,7 +1236,7 @@
             <span class="change-text">Flash replaces Express in the familiar delivery options list. Users see the pattern they recognise. They can compare. They can choose.</span>
           </div>
         </div>
-        <div class="mvp-visual" style="margin-top: clamp(24px, 3vw, 48px);">
+        <div class="mvp-visual reveal" style="margin-top: clamp(24px, 3vw, 48px);">
           <img src="Decision 1.png" alt="Decision 01 — Flash checkout redesign visualization">
         </div>
       </div>
@@ -1185,6 +1272,18 @@
               <span class="tp-flash-badge">Flash</span>
               <span class="tp-name">Checkout</span>
             </div>
+          </div>
+        </div>
+        <div class="mvp-visual reveal" style="margin-top: clamp(24px, 3vw, 48px);">
+          <img src="Decision 2.png" alt="Decision 02 — Flash label rollout visualization">
+        </div>
+        <div class="reveal" style="margin-top: clamp(24px, 3vw, 48px); display: flex; flex-direction: column; align-items: center; gap: clamp(16px, 2vw, 24px);">
+          <video autoplay loop muted playsinline style="width: 40%; height: auto; display: block; border-radius: clamp(12px, 2vw, 28px);">
+            <source src="Flash video.mp4" type="video/mp4">
+          </video>
+          <div style="text-align: center;">
+            <div style="font-size: clamp(11px, 0.9vw, 14px); font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.4; margin-bottom: 6px;">Small delight</div>
+            <div style="font-size: clamp(14px, 1.2vw, 20px); font-weight: 400; letter-spacing: -0.03em; line-height: 1.4;">Gimmick of unlocking the 15 mins delivery</div>
           </div>
         </div>
       </div>
