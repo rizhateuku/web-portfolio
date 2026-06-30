@@ -405,6 +405,17 @@
       letter-spacing: -0.02em;
       line-height: 1.5;
     }
+    .mvp-visual {
+      margin-top: clamp(32px, 4vw, 64px);
+      border-radius: clamp(12px, 2vw, 28px);
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .mvp-visual.revealed { opacity: 1; transform: translateY(0); }
+    .mvp-visual img { width: 100%; height: auto; display: block; }
+
     .mvp-miss {
       margin-top: clamp(40px, 5vw, 80px);
       background: rgba(0,0,0,0.03);
@@ -1053,6 +1064,10 @@
         <div class="mvp-choice-title">A locked checkout</div>
         <div class="mvp-choice-body">When a user reached checkout from the Flash funnel, Flash was the <em>only</em> delivery option shown. No Express, no Regular, no Hemat — plus a 3-SKU cap. A deliberate container.</div>
       </div>
+    </div>
+
+    <div class="mvp-visual reveal">
+      <img src="Flash MVP.png" alt="Flash MVP — two design choices: dedicated discovery funnel and locked checkout">
     </div>
 
     <div class="mvp-miss reveal">
