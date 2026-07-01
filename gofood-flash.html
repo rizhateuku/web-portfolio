@@ -940,15 +940,47 @@
       position: fixed;
       inset: 0;
       z-index: 9999;
-      background: #f5f5f0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      gap: 12px;
       transition: opacity 0.4s ease;
     }
     #pw-gate.fade-out { opacity: 0; pointer-events: none; }
+    #pw-modal {
+      background: #fff;
+      border-radius: clamp(20px, 2.5vw, 32px);
+      padding: clamp(36px, 4vw, 56px) clamp(32px, 4vw, 52px) clamp(28px, 3.5vw, 44px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+      width: min(400px, calc(100vw - 48px));
+      box-shadow: 0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04);
+    }
+    #pw-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.06);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(0,0,0,0.4);
+      font-size: 14px;
+      transition: background 0.2s, color 0.2s;
+      line-height: 1;
+      font-family: inherit;
+    }
+    #pw-close:hover { background: rgba(0,0,0,0.1); color: #000; }
     #pw-gate-label {
       font-size: clamp(11px, 0.9vw, 13px);
       font-weight: 600;
@@ -968,7 +1000,7 @@
       border-bottom: 1.5px solid rgba(0,0,0,0.2);
       outline: none;
       padding: 8px 0;
-      width: clamp(200px, 24vw, 320px);
+      width: 100%;
       text-align: center;
       transition: border-color 0.2s;
     }
@@ -986,10 +1018,11 @@
     }
     #pw-error.visible { opacity: 1; }
     #pw-request {
-      margin-top: 20px;
+      margin-top: 16px;
       font-size: clamp(12px, 0.9vw, 14px);
       color: rgba(0,0,0,0.35);
       letter-spacing: -0.01em;
+      text-align: center;
     }
     #pw-request button {
       background: none;
@@ -1018,25 +1051,37 @@
 
   <!-- PASSWORD GATE -->
   <div id="pw-gate">
-    <div id="pw-gate-label">Protected case study</div>
-    <input id="pw-input" type="password" placeholder="Enter password" autocomplete="off" autofocus>
-    <div id="pw-error">Wrong password</div>
-    <div id="pw-request">Don't have the password? <button onclick="window.location.href='mailto:rizhateuku@gmail.com?subject=Password%20request%20%E2%80%94%20GoFood%20Flash%20case%20study&body=Hi%20Rizha%2C%0A%0AI%27d%20love%20to%20read%20the%20GoFood%20Flash%20case%20study.%20Could%20you%20share%20the%20password%3F%0A%0AThanks!'">Request access</button></div>
+    <div id="pw-modal">
+      <button id="pw-close" aria-label="Close">✕</button>
+      <div id="pw-gate-label">Protected case study</div>
+      <input id="pw-input" type="password" placeholder="Enter password" autocomplete="off" autofocus>
+      <div id="pw-error">Wrong password</div>
+      <div id="pw-request">Don't have the password? <button onclick="window.location.href='mailto:rizhateuku@gmail.com?subject=Password%20request%20%E2%80%94%20GoFood%20Flash%20case%20study&body=Hi%20Rizha%2C%0A%0AI%27d%20love%20to%20read%20the%20GoFood%20Flash%20case%20study.%20Could%20you%20share%20the%20password%3F%0A%0AThanks!'">Request access</button></div>
+    </div>
   </div>
   <script>
     (function() {
-      var gate = document.getElementById('pw-gate');
+      var gate  = document.getElementById('pw-gate');
       var input = document.getElementById('pw-input');
       var error = document.getElementById('pw-error');
-      var KEY = 'auth_flash';
-      var PASS = 'nasigoreng';
+      var KEY   = 'auth_flash';
+      var PASS  = 'nasigoreng';
+
+      function dismiss() {
+        gate.classList.add('fade-out');
+        setTimeout(function() { gate.style.display = 'none'; }, 400);
+      }
+
       if (sessionStorage.getItem(KEY) === '1') { gate.style.display = 'none'; return; }
+
+      document.getElementById('pw-close').addEventListener('click', dismiss);
+      gate.addEventListener('click', function(e) { if (e.target === gate) dismiss(); });
+
       input.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter') return;
         if (input.value === PASS) {
           sessionStorage.setItem(KEY, '1');
-          gate.classList.add('fade-out');
-          setTimeout(function() { gate.style.display = 'none'; }, 400);
+          dismiss();
         } else {
           input.classList.add('shake');
           error.classList.add('visible');
