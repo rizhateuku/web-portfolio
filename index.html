@@ -461,8 +461,10 @@
     }
 
     /* ── CURSOR ──────────────────────────────────────────── */
+    #cursor-glow, #cursor-figma { display: none; }
     @media (hover: hover) and (pointer: fine) {
       body, a, button { cursor: none; }
+      #cursor-glow, #cursor-figma { display: block; }
 
       #cursor-glow {
         position: fixed;
