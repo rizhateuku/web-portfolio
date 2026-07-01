@@ -1015,6 +1015,20 @@
 
     revealOnScroll(document.querySelector('.lets-collab'));
     revealOnScroll(document.querySelector('.connect-col'), 150);
+
+    // Scroll-driven color: gray subtitle → black over first 300px of scroll
+    (function() {
+      var el = document.querySelector('.line-inner.gray');
+      if (!el) return;
+      var END = 300;
+      function update() {
+        var p = Math.min(1, window.scrollY / END);
+        var v = Math.round(143 * (1 - p));
+        el.style.color = 'rgb(' + v + ',' + v + ',' + v + ')';
+      }
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    })();
   </script>
 
   <script>
