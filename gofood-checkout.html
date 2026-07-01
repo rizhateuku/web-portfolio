@@ -1035,14 +1035,20 @@
       color: rgba(0,0,0,0.35);
       letter-spacing: -0.01em;
     }
-    #pw-request a {
+    #pw-request button {
+      background: none;
+      border: none;
+      padding: 0;
+      font-family: inherit;
+      font-size: inherit;
       color: #000;
       text-decoration: underline;
       text-underline-offset: 3px;
       text-decoration-color: rgba(0,0,0,0.25);
       transition: text-decoration-color 0.2s;
+      cursor: pointer;
     }
-    #pw-request a:hover { text-decoration-color: #000; }
+    #pw-request button:hover { text-decoration-color: #000; }
     @keyframes pw-shake {
       0%,100% { transform: translateX(0); }
       20%      { transform: translateX(-8px); }
@@ -1059,7 +1065,7 @@
     <div id="pw-gate-label">Protected case study</div>
     <input id="pw-input" type="password" placeholder="Enter password" autocomplete="off" autofocus>
     <div id="pw-error">Wrong password</div>
-    <div id="pw-request">Don't have the password? <a href="mailto:rizhateuku@gmail.com?subject=Password%20request%20%E2%80%94%20GoFood%20Checkout%20case%20study&body=Hi%20Rizha%2C%0A%0AI%27d%20love%20to%20read%20the%20GoFood%20Checkout%20case%20study.%20Could%20you%20share%20the%20password%3F%0A%0AThanks!">Request access</a></div>
+    <div id="pw-request">Don't have the password? <button onclick="window.location.href='mailto:rizhateuku@gmail.com?subject=Password%20request%20%E2%80%94%20GoFood%20Checkout%20case%20study&body=Hi%20Rizha%2C%0A%0AI%27d%20love%20to%20read%20the%20GoFood%20Checkout%20case%20study.%20Could%20you%20share%20the%20password%3F%0A%0AThanks!'">Request access</button></div>
   </div>
   <script>
     (function() {
