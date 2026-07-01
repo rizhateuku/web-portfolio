@@ -1084,8 +1084,10 @@
         setTimeout(function() { gate.classList.add('page-ready'); }, 80);
       });
 
-      document.getElementById('pw-close').addEventListener('click', dismiss);
-      gate.addEventListener('click', function(e) { if (e.target === gate) dismiss(); });
+      document.getElementById('pw-close').addEventListener('click', function() {
+        window.location.href = 'index.html';
+      });
+      gate.addEventListener('click', function(e) { if (e.target === gate) window.location.href = 'index.html'; });
 
       input.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter') return;
