@@ -659,7 +659,7 @@
           <p class="work-card-title">GoFood Flash — from parallel universe to native option</p>
           <p class="work-card-subtitle">A quick-commerce MVP that missed, the diagnosis that explained why, and the redesign that turned 2k daily orders into 44k.</p>
         </div>
-        <a href="gofood-flash.html" class="work-card-cta">
+        <a href="gofood-flash.html" class="work-card-cta" data-protected>
           See case study
           <svg class="arrow" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M10 24h28M30 14l10 10-10 10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -681,7 +681,7 @@
           <p class="work-card-title">Rebuilding GoFood's leakiest funnel stage</p>
           <p class="work-card-subtitle">a +2.9% lift for new users, and a case for segment-aware design.</p>
         </div>
-        <a href="gofood-checkout.html" class="work-card-cta">
+        <a href="gofood-checkout.html" class="work-card-cta" data-protected>
           See case study
           <svg class="arrow" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             <path d="M10 24h28M30 14l10 10-10 10" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -747,6 +747,126 @@
       </div>
     </div>
   </footer>
+
+  <!-- Homepage password gate overlay -->
+  <style>
+    #home-gate {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+    #home-gate.open { opacity: 1; pointer-events: auto; }
+    @keyframes home-modal-in {
+      from { transform: scale(0.9) translateY(16px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    #home-modal {
+      background: #fff;
+      border-radius: clamp(20px, 2.5vw, 32px);
+      padding: clamp(36px, 4vw, 56px) clamp(32px, 4vw, 52px) clamp(28px, 3.5vw, 44px);
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      position: relative;
+      width: min(400px, calc(100vw - 48px));
+      box-shadow: 0 32px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04);
+      opacity: 0;
+    }
+    #home-gate.open #home-modal {
+      animation: home-modal-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+    #home-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: rgba(0,0,0,0.06); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(0,0,0,0.4); font-size: 14px;
+      transition: background 0.2s, color 0.2s;
+      line-height: 1; font-family: inherit;
+    }
+    #home-close:hover { background: rgba(0,0,0,0.1); color: #000; }
+    #home-gate-label {
+      font-size: clamp(11px, 0.9vw, 13px); font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: #000; opacity: 0.4;
+    }
+    #home-input-wrap { position: relative; width: 100%; }
+    #home-pw {
+      font-family: 'Work Sans', sans-serif;
+      font-size: clamp(16px, 1.4vw, 20px); font-weight: 400;
+      letter-spacing: -0.03em; color: #000;
+      background: transparent; border: none;
+      border-bottom: 1.5px solid rgba(0,0,0,0.2);
+      outline: none; padding: 8px 0; width: 100%;
+      text-align: center;
+      transition: border-color 0.2s, color 0.3s;
+    }
+    #home-pw:focus { border-color: #000; }
+    #home-pw.shake { animation: home-shake 0.35s ease; border-color: #e00; }
+    #home-input-wrap.success #home-pw { border-color: #1a9652; color: #1a9652; }
+    #home-check {
+      position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+      width: 22px; height: 22px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+    #home-input-wrap.success #home-check { opacity: 1; }
+    .home-check-path {
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      transition: stroke-dashoffset 0.45s cubic-bezier(0.25, 1, 0.5, 1) 0.1s;
+    }
+    #home-input-wrap.success .home-check-path { stroke-dashoffset: 0; }
+    #home-error {
+      font-size: 12px; color: #e00;
+      opacity: 0; transition: opacity 0.2s; height: 16px;
+    }
+    #home-error.visible { opacity: 1; }
+    #home-request {
+      margin-top: 16px; font-size: clamp(12px, 0.9vw, 14px);
+      color: rgba(0,0,0,0.35); letter-spacing: -0.01em; text-align: center;
+    }
+    #home-request button {
+      background: none; border: none; padding: 0;
+      font-family: inherit; font-size: inherit; color: #000;
+      text-decoration: underline; text-underline-offset: 3px;
+      text-decoration-color: rgba(0,0,0,0.25);
+      transition: text-decoration-color 0.2s; cursor: pointer;
+    }
+    #home-request button:hover { text-decoration-color: #000; }
+    #home-note {
+      font-size: clamp(11px, 0.8vw, 13px); color: rgba(0,0,0,0.28);
+      letter-spacing: -0.01em; text-align: center; line-height: 1.5;
+      border-top: 1px solid rgba(0,0,0,0.07);
+      padding-top: 16px; width: 100%; margin-top: 4px;
+    }
+    @keyframes home-shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-8px); }
+      40%      { transform: translateX(8px); }
+      60%      { transform: translateX(-6px); }
+      80%      { transform: translateX(6px); }
+    }
+  </style>
+  <div id="home-gate" aria-modal="true" role="dialog" aria-label="Protected case study">
+    <div id="home-modal">
+      <button id="home-close" aria-label="Close">✕</button>
+      <div id="home-gate-label">Protected case study</div>
+      <div id="home-input-wrap">
+        <input id="home-pw" type="password" placeholder="Enter password" autocomplete="off">
+        <div id="home-check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="home-check-path" d="M5 12l4 4L19 7" stroke="#1a9652" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <div id="home-error">Wrong password</div>
+      <div id="home-request">Don't have the password? <button id="home-request-btn">Request access</button></div>
+      <p id="home-note">Just drop me a line and I'll get you in!</p>
+    </div>
+  </div>
 
   <div id="cursor-glow" aria-hidden="true"></div>
   <div id="cursor-figma" aria-hidden="true">
@@ -895,6 +1015,80 @@
 
     revealOnScroll(document.querySelector('.lets-collab'));
     revealOnScroll(document.querySelector('.connect-col'), 150);
+  </script>
+
+  <script>
+    // Homepage password gate
+    (function() {
+      var gate  = document.getElementById('home-gate');
+      var input = document.getElementById('home-pw');
+      var wrap  = document.getElementById('home-input-wrap');
+      var error = document.getElementById('home-error');
+
+      var GATES = {
+        'gofood-flash.html':    { pass: 'nasigoreng', key: 'auth_flash',    subject: 'Password%20request%20%E2%80%94%20GoFood%20Flash%20case%20study' },
+        'gofood-checkout.html': { pass: 'ayamgeprek', key: 'auth_checkout', subject: 'Password%20request%20%E2%80%94%20GoFood%20Checkout%20case%20study' },
+      };
+
+      var current = null;
+      var currentDest = '';
+
+      function openGate(dest, cfg) {
+        current     = cfg;
+        currentDest = dest;
+        input.value = '';
+        error.classList.remove('visible');
+        input.classList.remove('shake');
+        wrap.classList.remove('success');
+        gate.classList.add('open');
+        setTimeout(function() { input.focus(); }, 350);
+      }
+
+      function closeGate() {
+        gate.classList.remove('open');
+        current = null;
+      }
+
+      // Intercept protected CTA clicks
+      document.querySelectorAll('[data-protected]').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+          var href = el.getAttribute('href');
+          var dest = href.split('/').pop();
+          var cfg  = GATES[dest];
+          if (!cfg) return;
+          if (sessionStorage.getItem(cfg.key) === '1') return;
+          e.preventDefault();
+          openGate(href, cfg);
+        });
+      });
+
+      document.getElementById('home-close').addEventListener('click', closeGate);
+      gate.addEventListener('click', function(e) { if (e.target === gate) closeGate(); });
+
+      document.getElementById('home-request-btn').addEventListener('click', function() {
+        if (!current) return;
+        var body = 'Hi%20Rizha%2C%0A%0AI%27d%20love%20to%20read%20the%20case%20study.%20Could%20you%20share%20the%20password%3F%0A%0AThanks!';
+        window.location.href = 'mailto:rizhateuku@gmail.com?subject=' + current.subject + '&body=' + body;
+      });
+
+      input.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter' || !current) return;
+        if (input.value === current.pass) {
+          sessionStorage.setItem(current.key, '1');
+          wrap.classList.add('success');
+          setTimeout(function() {
+            gate.classList.remove('open');
+            setTimeout(function() { window.location.href = currentDest; }, 350);
+          }, 750);
+        } else {
+          input.classList.add('shake');
+          error.classList.add('visible');
+          setTimeout(function() { input.classList.remove('shake'); input.value = ''; }, 400);
+        }
+      });
+
+      input.addEventListener('input', function() { error.classList.remove('visible'); });
+    })();
   </script>
 </body>
 </html>
