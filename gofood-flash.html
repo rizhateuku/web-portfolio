@@ -759,6 +759,38 @@
       margin: clamp(12px, 1.5vw, 24px) 0;
     }
 
+    /* ── KEY METRICS ─────────────────────────────────────── */
+    .key-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5px;
+      background: rgba(0,170,19,0.12);
+      border-radius: clamp(16px, 2.5vw, 40px);
+      overflow: hidden;
+      margin-top: clamp(32px, 4vw, 64px);
+      margin-bottom: clamp(16px, 2vw, 28px);
+    }
+    .metric-item {
+      background: #fff;
+      padding: clamp(24px, 3vw, 48px) clamp(20px, 2.5vw, 40px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .metric-number {
+      font-size: clamp(26px, 3.2vw, 52px);
+      font-weight: 600;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      color: var(--green);
+    }
+    .metric-label {
+      font-size: clamp(11px, 0.9vw, 14px);
+      color: rgba(0,0,0,0.4);
+      letter-spacing: -0.01em;
+      line-height: 1.4;
+    }
+
     /* ── REFLECTION ──────────────────────────────────────── */
     .reflection-list {
       display: flex;
@@ -922,6 +954,7 @@
       .result-card.featured { grid-template-columns: 1fr; grid-column: span 2; }
       .results-grid { grid-template-columns: 1fr; }
       .result-card.featured { grid-column: span 1; }
+      .key-metrics { grid-template-columns: repeat(2, 1fr); }
     }
     @media (max-width: 600px) {
       .stats-band { grid-template-columns: 1fr 1fr; }
@@ -1422,6 +1455,24 @@
   <section class="cs-section" style="padding-top: 0;">
     <div class="cs-section-label reveal">The result</div>
     <h2 class="cs-h2 reveal">The thing that moved the metric wasn't <strong>a new feature.</strong></h2>
+    <div class="key-metrics reveal">
+      <div class="metric-item">
+        <div class="metric-number">2.7Mn</div>
+        <div class="metric-label">Completed orders</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-number">215Bn</div>
+        <div class="metric-label">Gross transaction value</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-number">657K</div>
+        <div class="metric-label">Monthly transacting users</div>
+      </div>
+      <div class="metric-item">
+        <div class="metric-number">81K</div>
+        <div class="metric-label">Average order value</div>
+      </div>
+    </div>
     <div class="results-grid">
       <div class="result-card featured reveal">
         <div>
