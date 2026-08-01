@@ -666,37 +666,74 @@
     .decision-section .cs-h2 strong { color: rgba(255,255,255,0.5); }
     .decision-section .cs-body { color: rgba(255,255,255,0.5); }
 
-    /* Complexity table */
-    .coord-table {
-      border-top: 1px solid rgba(255,255,255,0.08);
+    /* Coordination cards */
+    .coord-cards {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto auto;
+      border-top: 1px solid rgba(255,255,255,0.08);
     }
-    .coord-col {
-      padding: clamp(28px, 3.5vw, 52px) clamp(32px, 4vw, 56px);
+    .coord-card {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: span 3;
       border-right: 1px solid rgba(255,255,255,0.08);
     }
-    .coord-col:last-child { border-right: none; }
-    .coord-eyebrow {
-      font-size: clamp(10px, 0.7vw, 12px);
-      font-weight: 600;
-      letter-spacing: 0.1em;
+    .coord-card:last-child { border-right: none; }
+    .coord-num {
+      font-size: clamp(11px, 0.85vw, 13px);
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.25);
-      margin-bottom: clamp(10px, 1.2vw, 18px);
+      color: var(--green);
+      padding: clamp(32px, 4vw, 60px) clamp(28px, 3.5vw, 52px) 0;
+    }
+    .coord-title {
+      font-size: clamp(24px, 2.8vw, 48px);
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      color: #fff;
+      padding: clamp(20px, 2.5vw, 36px) clamp(28px, 3.5vw, 52px) clamp(24px, 3vw, 48px);
+    }
+    .coord-items {
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding: clamp(20px, 2.5vw, 36px) clamp(28px, 3.5vw, 52px) clamp(32px, 4vw, 60px);
+      gap: clamp(10px, 1vw, 16px);
     }
     .coord-item {
-      font-size: clamp(14px, 1.3vw, 20px);
-      color: rgba(255,255,255,0.6);
-      letter-spacing: -0.03em;
+      font-size: clamp(12px, 1vw, 16px);
+      color: rgba(255,255,255,0.38);
+      letter-spacing: -0.02em;
       line-height: 1.5;
       display: flex;
       gap: 10px;
-      padding: clamp(10px, 1.2vw, 16px) 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 8px 10px;
+      margin: 0 -10px;
+      border-radius: 8px;
+      transition: color 0.2s ease, background 0.2s ease;
+      cursor: default;
     }
-    .coord-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .coord-item::before { content: '—'; opacity: 0.2; flex-shrink: 0; }
+    .coord-item:hover {
+      color: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.05);
+    }
+    .coord-item::before {
+      content: '';
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--green);
+      opacity: 0.5;
+      flex-shrink: 0;
+      margin-top: 7px;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .coord-item:hover::before {
+      opacity: 1;
+      transform: scale(1.4);
+    }
     .decision-footer {
       padding: clamp(28px, 3.5vw, 52px) clamp(48px, 6vw, 100px);
       border-top: 1px solid rgba(255,255,255,0.08);
@@ -955,9 +992,7 @@
       .mvp-grid { grid-template-columns: 1fr; }
       .cohort-grid { grid-template-columns: 1fr; }
       .change-pair { grid-template-columns: 1fr; }
-      .coord-table { grid-template-columns: 1fr; }
-      .coord-col { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
-      .coord-col:last-child { border-bottom: none; }
+      .coord-cards { grid-template-columns: 1fr; }
       .result-card.featured { grid-template-columns: 1fr; grid-column: span 2; }
       .results-grid { grid-template-columns: 1fr; }
       .result-card.featured { grid-column: span 1; }
@@ -1431,24 +1466,33 @@
         <p class="cs-body" style="margin-top: clamp(12px, 1.5vw, 24px);">The label expansion required cross-team alignment that went well beyond screens. The MVP's failure mode was protective isolation. The fix required deliberate integration across every touchpoint Flash could plausibly appear on.</p>
       </div>
 
-      <div class="coord-table">
-        <div class="coord-col">
-          <div class="coord-eyebrow">Stakeholder alignment</div>
-          <div class="coord-item">Show other PMs the post-launch data and research — not just the design direction</div>
-          <div class="coord-item">Convince partner teams to take on label implementation in their surfaces</div>
-          <div class="coord-item">Get product commitment across GoFood home, search, and merchant surfaces</div>
+      <div class="coord-cards">
+        <div class="coord-card">
+          <div class="coord-num">01</div>
+          <div class="coord-title">Stakeholder alignment</div>
+          <div class="coord-items">
+            <div class="coord-item">Show other PMs the post-launch data and research — not just the design direction</div>
+            <div class="coord-item">Convince partner teams to take on label implementation in their surfaces</div>
+            <div class="coord-item">Get product commitment across GoFood home, search, and merchant surfaces</div>
+          </div>
         </div>
-        <div class="coord-col">
-          <div class="coord-eyebrow">Design system work</div>
-          <div class="coord-item">Design a label that worked across multiple surfaces without breaking existing visual hierarchies</div>
-          <div class="coord-item">Land the Flash badge as a reusable component in the GoFood design system</div>
-          <div class="coord-item">Coordinate with the design system team for long-term maintenance</div>
+        <div class="coord-card">
+          <div class="coord-num">02</div>
+          <div class="coord-title">Design system work</div>
+          <div class="coord-items">
+            <div class="coord-item">Design a label that worked across multiple surfaces without breaking existing visual hierarchies</div>
+            <div class="coord-item">Land the Flash badge as a reusable component in the GoFood design system</div>
+            <div class="coord-item">Coordinate with the design system team for long-term maintenance</div>
+          </div>
         </div>
-        <div class="coord-col">
-          <div class="coord-eyebrow">Operations alignment</div>
-          <div class="coord-item">Coordinate with operations on which SKUs qualified at any given time</div>
-          <div class="coord-item">Build a scalable ops model for Flash eligibility — not a one-off list</div>
-          <div class="coord-item">Ensure the label reflected real-time eligibility, not stale data</div>
+        <div class="coord-card">
+          <div class="coord-num">03</div>
+          <div class="coord-title">Operations alignment</div>
+          <div class="coord-items">
+            <div class="coord-item">Coordinate with operations on which SKUs qualified at any given time</div>
+            <div class="coord-item">Build a scalable ops model for Flash eligibility — not a one-off list</div>
+            <div class="coord-item">Ensure the label reflected real-time eligibility, not stale data</div>
+          </div>
         </div>
       </div>
 
